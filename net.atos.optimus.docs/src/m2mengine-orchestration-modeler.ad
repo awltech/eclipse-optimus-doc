@@ -1,0 +1,107 @@
+:title: Using the orchestration modeler
+:documenttitle: Using the orchestration modeler
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#{documenttitle}#
+|===
+
+''''
+
+== Purpose
+
+The orchestration modeler provides an alternative way to register transformations in Optimus. 
+It proposes a graphical view of the relationship between the different transformations, helping both developer to build generator and user to understand the generation process.
+Useful features such as auto-completion and auto-integration within the _plugin.xml_ file are available.
+
+== How to use
+
+The registration of transformations with the modeler followed the three steps above :
+
+* Create the *transformation dependency diagram*
+
+* Fill the diagram
+
+* Add the diagram to the _plugin.xml_ file
+
+=== Create the transformation dependency diagram
+
+First, _Right Click_ on the package explorer and select _New > Other > Examples > TransformationDependency Diagram_. 
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-creation1.png[]
+
+Then, specify the name of the diagram and click on _finish_.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-creation2.png[]
+
+A new empty diagram was created with the extension *.tom*.
+
+=== Fill the diagram
+
+==== Palette's element
+
+Let's focus on the elements available from the palette :
+
+* *TransformationSet* is simply a transformation container. 
+
+* *TransformationSetExtension* allows to extend an existing transformation set by adding new transformations, new relationship between transformations or overwriting transformations (thanks to the _priority_ property).
+
+* *Transformation* is a simple transformation.
+
+* *External Transformation* allows to reference an existing transformation from another transformation set. These transformation references are always outside a transformation set container and you can't add a requirement from this transformation.
+
+* *SelfRequirement*/*ParentRequirement*/*CustomRequirement* specifies the relationship type between two transformations. 
+
+See link:./m2mengine-contributions.html[Contributing your own transformations to the M2M Engine] to have more details about the element of the palette.
+
+We present how to use the orchestration modeler though a simple example. Make sure that the *properties view* are open, it's an essential part to fill de diagram properly.
+
+==== Simple example
+
+Assume that we have implemented a simple generator with three transformations named *PackageCreation*, *ProgramClassCreation* and *PredicateCreation*. 
+
+We want to specify that the *ProgramClassCreation* self requires the *PackageCreation* and the *PredicateCreation* requires *ProgramClassCreation* as parent.
+we suppose that the *PackageCreation* transformation is already declared in another transformation set called _Original Set_ (in another diagram for example).
+
+The first step consist to create the *ProgramClassCreation* transformation in the diagram. Thus, we need previously to declare a new transformation set and named it _Simple Transformation Set_ for example.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-fill1.png[]
+
+Then we can drag and drop the transformation into the new created set.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-fill2.png[]
+
+In the *property view*, we can add specific pieces of information to the transformation and its set as described in link:./m2mengine-contributions.html[Contributing your own transformations to the M2M Engine].
+We can find implementation for transformation set or factory for transformation thanks to a *resource selector* enabling fast research process.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-fill3.png[]
+
+Now, we want to add the *PredicateCreation* to the previous created transformation set. Select the *ParentRequirement*, then draw a line from the *PredicateCreation* to *ProgramClassCreation*.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-fill4.png[]
+
+Remains to be added a self requirement from *ProgramClassCreation* to *PackageCreation*. As *PackageCreation* transformation is declared in another transformation set, we create an external transformation.
+In the property view, we specify the transformation ID. In the diagram, we draw a *SelfRequirement* as the same way as before.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-fill5.png[]
+
+Last, we can add a two new transformations called *ProgramTestClassCreation* and *ProgramTestLaunchCreation* to the _Simple Transformation Set_ transformation set using the extension mecanism. We create a *TransformationSetExtension* and named it _Simple Transformation Set_ in order to extend the previous transformation set.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-fill6.png[]
+
+We're adding a self requirement from *ProgramTestLaunchCreation* to *ProgramTestClassCreation* as the same way as before.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-fill7.png[]
+
+=== Add the diagram to the plugin file
+
+To finalize the registration of the transformations within the diagram in Optimus, _Right Click_ on the diagram then _Optimus > Add to plugin.xml_.
+Please note that a diagram needs only to be registered one time.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-add-plugin.png[]
+
+With the example diagram, we obtain the transformation list below. Noted that test transformations are in the _Simple Transformation Set_ as expected.
+
+image:./images/m2mengine-orchestration-modeler/m2m-diagram-result.png[]
+
+
