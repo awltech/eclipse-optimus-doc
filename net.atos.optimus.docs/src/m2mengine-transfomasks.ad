@@ -8,6 +8,63 @@
 
 ''''
 
-== UNDER CONSTRUCTION
+== About the transformation mask
 
-''''
+Creating a transformation generator using Optimus involved the creation of many different transformations to address general purpose. 
+Most of the time, only a subset of these transformations are relevant for the user according to its needs. 
+For example, a JavaEE developer only exploit a part of a Java transformation generator.
+
+A transformation mask enables user to choose whether or not a transformation or a set of transformations will be execute at runtime. 
+It can be seen as a profile, by the way, a JavaEE profile if we consider the previous example.
+
+== Choosing transformation mask
+
+We choose the preferred transformation mask through the preference window under _Optimus > Transformation Mask Configuration_. 
+A drop-down menu list all the transformation mask available. 
+Under the menu, we find a brief description of the selected mask and the list of transformations enabled/disabled by it.
+
+image:./images/m2mengine-transfomasks/m2m-pref-page.png[]
+
+The default preferred transformation mask enables all the transformations (named _Default all On mask_).
+
+Moreover, some Optimus tools provide a pop-up asking for the transformation mask before the generation execution, by-passing the preferred mask.
+
+== Creating transformation masks
+
+There are essentially two ways to create a transformation mask
+
+=== Though an extension point
+
+Extension point is mostly used by developer of the code generator. The associated extension point ID is *net.atos.optimus.m2m.engine.masks.TransformationMasks*.
+Three kinds of contributed transformation mask are available :
+
+* The *implemented mask*. An implementation of the mask are directly given, with respect to the interface *net.atos.optimus.m2m.engine.core.masks.ITransformationMask*
+
+image:./images/m2mengine-transfomasks/m2m-transfo-mask.png[]
+
+* The *inclusive mask*. By default, all transformations are disabled. Each transformation or transformation set, added to this mask, are enabled.
+
+* The *exclusive mask*. By default, all transformations are enabled. Each transformation or transformation set, added to this mask, are disabled.
+
+=== With the preference page
+
+We can create a transformation mask using the associated button in the preference page. 
+This new mask always extended an existing one only for initialization purpose.
+
+With created masks, we can change the mask description, enable/disable transformations within it or delete it.
+Due to the requirements between the different transformations, we have the following behavior :
+
+* Selecting a transformation selects automatically all transformations required by this transformation.
+
+* Deselecting transformation deselects automatically all transformations requiring this transformation.
+
+The change on a mask are effective only where the _apply_ or _ok_ button are pressed. In this case, the modified mask become the preferred mask.
+
+Furthermore, we can't edit or delete a contributed mask.
+
+=== Additional feature
+
+It is possible to import a mask through an XML file respecting the schema *here the schema URL*. The imported mask is editable.
+
+Regarding the same schema, we can export all the mask available.
+

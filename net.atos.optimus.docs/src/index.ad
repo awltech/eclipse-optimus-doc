@@ -38,7 +38,7 @@ The following links will head you towards the different parts of Optimus and the
 ** link:./m2mengine-orchestration.html[M2M Engine Overview]
 ** link:./m2mengine-contributions.html[Contributing your own transformations to the M2M Engine]
 ** link:./m2mengine-context.html[Using the transformation context]
-** link:./m2mengine-transfomasks.html[Using transformation masks (Under construction)]
+** link:./m2mengine-transfomasks.html[Using transformation masks]
 * M2T 
 ** link:./m2t-javageneration.html[Java Code Generator]
 
