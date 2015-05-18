@@ -1,0 +1,17 @@
+:title: Installation Guide
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#Installation Guide#
+|===
+
+''''
+
+New ! Now available on Eclipse MarketPlace at : https://marketplace.eclipse.org/content/optimus
+
+
+* Update Site for version 1.0.0 is http://eclipse.worldline.com/releases/kepler/optimus
+* Nightly builds are available from http://eclipse.worldline.com/nightly/optimus
+
+
+''''

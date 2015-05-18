@@ -1,0 +1,99 @@
+:title: Transformation orchestration
+:documenttitle: Transformation orchestration
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#{documenttitle}#
+|===
+
+''''
+
+== Introduction
+
+The main added value in Optimus resides in the Model to Model transformations orchestration. The purpose of this document is to describe the related API and implementation.
+
+== Executing the transformation process
+
+This can be done by using the *net.atos.optimus.m2m.engine.core.OptimusM2MEngine*, which proposes two constructors:
+
+----------
+OptimusM2MEngine(ITransformationContext context)
+
+OptimusM2MEngine(ITransformationContext context, boolean lockInput, boolean trackAddition)
+----------
+
+* As the orchestrator is in charge of executing unitary & independant transformations, it needs a mean to transfer information across the execution. This is the role of the Transformation Context, which acts as a session. 
+This transformation context should implement the *ITransformationContext* interface and Optimus proposes a default implementation (based on maps) named *DefaultTransformationContext* 
+To know more about the API and features around this context, the dedicated documentation is available link:./m2mengine-context.html[here].
+This is the aim of the first parameter.
+* The second aims at enabling a lock on the tree of object that should be transform, to make them read-only.
+Indeed, when enabled, an exception will be thrown when a transformation attempts to modify the input elements.
+(Technically, this is done through the usage of EMF adapters)
+
+* The third one uses the same adapter technology to notify the orchestrator when objects are modified/added as inputs, so transformations can be applied on them too.
+
+Now the engine is created, you need to add input elements into it, using the following possible APIs:
+
+----------
+setElements(Set<EObject> inputElements)
+
+setElement(EObject inputElement);
+----------
+
+When called, the engine will then resolve all the elements that is should consider during the transformation process, taking all children and direct parents, as per the example below.
+Such elements are called the *eligible elements*.
+
+image:./images/m2mengine-overview/m2m-img01.png[]
+
+Finally, the last step is to call the transformation process, using the *execute()* method proposed by the engine.
+
+Put altogether, this gives the following piece of code
+
+----------
+ITransformationContext context = new DefaultTransformationContext(); // To use the default Optimus one.
+OptimusM2MEngine engine = new OptimusM2MEngine(context, true, false); // To lock the input tree and not to listen to modifications
+engine.setElements(getElements()); // Let's imagine that elements is something retrieving the EObjects to transform
+engine.execute();
+----------
+
+== Configuring the transformation process
+
+Additional API exists to customize the execution of the process. the most commonly used methods are, from the instanciated engine:
+
+----------
+limitTransformationSetsTo(String... transformationSets);
+----------
+
+In Optimus, transformations are registered under transformation sets (see document link:./m2mengine-contributions.html[here]).
+As it relies on extension points, it natively uses all the transformations from all the transformation sets available through Extension Points, in the Eclipse instance.
+In case you are developing a transformation engine that should only focus on some very transformation sets, you can call this method, to pass the transformations set to consider.
+
+Also, it is possible to define transformation sets as private ones. These ones will never be considered in a transformation proces, unless you register them specifically.
+This is the mean, in Optimus, to partition processes, even when dealing with extension points.
+
+----------
+applyTransformationMasks(ITransformationMask transformationMask)
+----------
+
+This method proposes a filtering process, with a lower granularity than the transformation set limitation.
+Indeed, a transformation mask will hold information about which transformation should be executed or not... One can be contributed programmatically (Java API) or through extension points.
+See the dedicated documentation for more information (_COMING SOON_).
+
+== A few words about the execution
+
+The engine execution follows some steps, described below
+
+=== The transformation resolution
+
+At first, and according to the transformation set limitation and/or the applied transformation mask, the engine will locate all the transformations that are enabled.
+
+=== The elements resolution
+
+Then, as per the eligible elements described before, the engine locates all the objects that should be processed by transformations
+
+=== Finally the execution...
+
+For each object located, Optimus will create a transformation instance for each eligible reference... and executes it !
+
+
+''''

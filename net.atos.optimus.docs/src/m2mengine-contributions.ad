@@ -1,0 +1,217 @@
+:title: Contributing M2M Transformations
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#Contributing M2M Transformations#
+|===
+
+''''
+
+== About the transformation definition
+
+One transformation will be split into two distinct java objects. A Transformation Factory and the Transformation itself.
+
+=== The Transformation Factory class
+
+The purpose of the Transformation Factory is double.
+
+At first, this Transformation Factory contains the implementation, that checks if the associated Transformation can be applied on a given EObject. This is the notion of eligibility. In a second time, if the provided EObject is eligible, this Transformation Factory will create a new Transformation instance for it.
+
+Please note that a given transformation instance will be strongly linked to a given EObject. Thanks to this, the Optimus internal engine will know whether a given transformation exists and whether it has already been executed for a given EObjects. This way, a given transformation for a given EObject cannot be executed twice.
+
+In a technical point of view, the Transformation Factory implementation needs to implement the ITransformationFactory interface, that will require the implementation of two methods shown on the picture below:
+
+image: images/m2mengine-contributions/m2m-img02.png[]
+
+where:
+
+    * The *isEligible* method contains the eligibility condition implementation
+    * The *createTransformation* method contains the Transformation creation implementation
+
+The example hereafter shows the implementation of a transformation factory that should add an Entity Annotation on a UML class that holds the <> UML Stereotype
+
+----------
+
+import net.atos.optimus.m2m.engine.transformations.ITransformationFactory;
+import net.atos.optimus.m2m.engine.transformations.AbstractTransformation;
+
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.uml2.uml.Classifier;
+import org.eclipse.uml2.uml.Element;
+
+public class T11EntityAnnotationFactory implements ITransformationFactory {
+
+	public boolean isEligible(EObject eObject) {
+		return eObject instanceof Classifier && ((Element) eObject).getAppliedStereotype("Domain::entity") != null;
+	}
+
+	public AbstractTransformation<Classifier> create(EObject eObject, String id) {
+		return new T11EntityAnnotation((Classifier) eObject, id);
+	}
+}
+
+----------
+
+=== The transformation class
+
+The purpose or the transformation class is to contain the implementation of the transformation itself.
+
+It is very important to understand that there won't be only one instance of Transformation for all the objects processed by the Transformation engine. Indeed, to ensure that a given transformation cannot be applied twice for a same object, one instance of a given transformation will be created and cached for each eligible EObject, within the Transformation Engine. (This is also why we needed to define a factory for it).
+
+The transformation class can be parametrized with an EObject instance, to ensure a strong link with the instance of object that is being transformed. A transformation class should extend the AbstractTransformation abstract class provided by the Optimus framework, as it is described on the picture below:
+
+image: images/m2mengine-contributions/m2m-img03.png[]
+
+As you can see here, this class can be parametrized with an EObject. This ensures a strong link with a given type. You can also see that the inheritance to this class requires the implementation of a transform method, which takes a Transformation Context as parameter. This context is the one that was mentioned previously in the document, and that will be presented later.
+
+The example hereafter shows an example of transformation class, that adds an @Entity annotation to a java class.
+
+----------
+
+import net.atos.optimus.m2m.engine.transformations.AbstractTransformation;
+import net.atos.optimus.m2m.engine.transformations.ITransformationContext;
+
+import org.eclipse.gmt.modisco.java.Annotation;
+import org.eclipse.gmt.modisco.java.ClassDeclaration;
+
+public class T11EntityAnnotation extends AbstractTransformation {
+
+	public T11EntityAnnotation(Classifier eObject, String id) {
+     	super(eObject, id);
+	}
+
+	@Override
+	public void transform(ITransformationContext context) {
+		// Retrieve the class declaration corresponding to current class, in context
+		ClassDeclaration classDeclaration = (ClassDeclaration) context.get(getEObjectFragment(), "self");
+		classDeclaration.getAnnotations().add(this.getEntityAnnotation());
+	}
+
+}
+
+----------
+
+=== The transformation registration
+
+Now we have defined a new transformation, we need to let it be known by Optimus.
+
+The registration process is done through Eclipse extension points, that are specified within the plugin.xml file of the plugin project in which you are implementing your transformation.
+
+The picture below describes the extension point structure, as a UML diagram. 
+
+image: images/m2mengine-contributions/m2m-img04.png[]
+
+All the modeled datatypes correspond to Java implementations that are described in the whole document.
+
+=== The transformation set definition
+
+The proposed extension point requires the creation of transformation sets. These transformation sets can be seen as containers of transformations. They are used to organize the transformations according to their own scopes. Moreover, those scopes can be used during the Optimus execution, to limit the number of processed transformations. Hence, the transformation sets are enough separate each transformation process.
+
+In the extension point definition, the Transformation Set definition requires an ID, and an implementation class, as described on the picture below:
+
+image: images/m2mengine-contributions/m2m-img05.png[]
+
+This implementation class should extend the TransformationSet abstract class (provided by the framework), and is defined to apply another level of eligibility on EObjects (For instance, verify in a transformation set, the availability of a specific nature on the project, to know whether to enable or disable its transformations).
+
+Hereafter is an example of Transformation set implementation, checking if the project that contains the EObject has the specific nature :
+
+----------
+
+import net.atos.optimus.m2m.engine.transformations.TransformationSet;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.workspace.util.WorkspaceSynchronizer;
+
+public class DomainTransformationSet extends TransformationSet {
+
+	@Override
+	public boolean isEligible(EObject eObject) {
+
+		IFile file = WorkspaceSynchronizer.getFile(eObject.eResource());
+		IProject project = file.getProject();
+		try {
+			return project.getNature("net.atos.mynature") != null;
+		} catch (CoreException e) {
+			logException(e);
+		}
+		return false;
+	}
+
+} 
+
+----------
+
+=== The transformation definition
+
+The transformation registration in the extension point requires 4 pieces of information.
+
+* *The ID* : Should be unique across all the transformations referenced in the workspace. The ID is essentially used internally, and need to be a static and user-specified value, since this id value can be reinvest to override a given transformation.
+
+* *The description* : This information will be displayed in the Eclipse Preferences UI and in the logs. This data is for information only.
+
+* *The priority* : If not specified, the value is O. The purpose of this value is for the requirement definition system, and for transformation overriding (since defining another new transformation with same ID ad this one and with higher priority will supplant the current one - More information about extensibility to come later).
+
+* *The factory*: Should contain the fully qualified name of the factory implementation related to this transformation.
+
+=== The requirement definition
+
+As already said in a previous part, the chaining of all the transformations is guaranteed thanks to the definition & the management of requirements.
+
+A requirement corresponds to the definition of another transformation that has to be executed before the current transformation, to ensure that this current transformation can be run safely with the right initial conditions. For instance, let's imagine that a transformation consists in the addition of a specific java annotation on a java class. A requirement to this transformation would be the creation of this same java class.
+
+The definition of such requirement consists in providing, in the extension point, the ID of the required transformation, along with a list of objects, on which the required transformation should be applied.
+
+By default, three types of requirements are provided:
+
+* *The Object Requirement* : This requirement will apply the required transformation (identified by an id) to the object that is being transformed by the current transformation.
+
+* *The Parent Requirement* : This requirement will apply the required transformation on the parent of the object being transformed y the current transformation.
+
+* *The Custom Requirement* : This requirement will apply the required transformation on a list of elements that is to be provided by the user. This list of element will be computed from the current object, based on an algorithm to be written by the user itself. The implementation (which fully qualified name is referenced in the extension point) has to extend the AbstractRequirement class, provided by the framework. In this implementation, the user will have to implement the List getMatchingEObjects(EObject eObject, ITransformationContext context) method.
+
+Internally, the Object and the Parent requirements are specific implementation of the Custom requirements, that are provided by the framework.
+
+The example below describes the implementation of such custom requirement, which purpose is to ensure that, for the generation or a role of an association, the class which should contain this role exists.
+
+----------
+
+import java.util.Collections;
+import java.util.List;
+
+import net.atos.optimus.m2m.engine.requires.AbstractRequirement;
+import net.atos.optimus.m2m.engine.transformations.ITransformationContext;
+
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.uml2.uml.Association;
+import org.eclipse.uml2.uml.Property;
+import org.eclipse.uml2.uml.Type;
+
+public class AssociationClassRequirement extends AbstractRequirement {
+
+	@Override
+	public List<Type> getMatchingEObjects(EObject eObject, ITransformationContext context) {
+		if (!(eObject instanceof Property))
+			return null;
+
+		Property property = (Property) eObject;
+		if (property.getAssociation() == null)
+			return null;
+
+		Association association = property.getAssociation();
+		if (association.getMemberEnds().size() != 2)
+			return null;
+
+		Property p = association.getMemberEnds().get(0).equals(property) ? association.getMemberEnds().get(1) : association.getMemberEnds().get(0);
+
+		return Collections.singletonList(p.getType());
+	}
+
+}
+
+----------
+
+''''

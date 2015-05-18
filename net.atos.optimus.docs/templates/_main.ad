@@ -1,0 +1,13 @@
+:title: {documenttitle} 
+:documenttitle: __INSERT TITLE HERE__
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#{documenttitle}#
+|===
+
+''''
+
+== Insert your documentation here.
+
+''''

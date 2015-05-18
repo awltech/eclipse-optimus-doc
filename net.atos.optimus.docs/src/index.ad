@@ -1,0 +1,45 @@
+:title: Optimus Documentation Portal
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#Optimus Documentation Portal#
+|===
+
+''''
+
+== What is it ?
+
+Optimus in an Open Source framework, based on the Eclipse IDE to propose Agile Model Transformation management. It relies on the MDE
+(Model Driven Engineering) concepts to propose APIs and tools to build Model Transformation / Code generation applications that are
+
+* *Visible*: At everytime, someone using Optimus will know what is being transformed and generated
+* *Configurable*: A user will have the possibility, at anytime, to enable/disable part of a transformation process, to make it adapted to its need
+* *Extensible*: An advanced user will have the possibilite at anytime, to enhance an existing transformation process or create his own one.
+
+Optimus is not a new code generator framework. And it clearly doesn't aim at being a concurrent to existing transformation languages 
+such as ATL or Acceleo. It is complementary to them, as it proposes a way to orchestrate code generation processes.
+
+== Why should I use it ?
+
+*Because it's up to the tool to get adapted to your context and not up to you to adapt to the tool you are using...*
+
+Indeed, have you ever been frustrated to use a tool that *ALMOST* fits your needs? For instance, a code generator that builds from nothing
+a wonderful ready-to-run complex application, but in what is generated there is *ONE* method you always need to update ?
+
+In this case, Optimus is made for you. As any model transformation application, including code generators, will be fully extensible. This
+means that you will be able to natively make it as you want 
+
+== How can I get more information about it ?
+
+The following links will head you towards the different parts of Optimus and their usage and extension points.
+
+* link:./installationguide.html[Installation guide]
+* M2M Engine
+** link:./m2mengine-orchestration.html[M2M Engine Overview]
+** link:./m2mengine-contributions.html[Contributing your own transformations to the M2M Engine]
+** link:./m2mengine-context.html[Using the transformation context]
+** link:./m2mengine-transfomasks.html[Using transformation masks (Under construction)]
+* M2T 
+** link:./m2t-javageneration.html[Java Code Generator]
+
+''''

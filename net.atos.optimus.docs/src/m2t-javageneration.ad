@@ -1,0 +1,89 @@
+:title: Java Code Generation 
+:documenttitle: Java Code Generation
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#{documenttitle}#
+|===
+
+''''
+
+== Introduction
+
+The purpose of this document is to describe the behavior and the usage of the 0ptimus M2T Java Generator.
+
+== Purpose of the component
+
+The purpose of this component is to propose facilities to generate Java source code. This component strongly relies on the MoDisco Java Generator, which already proposes lots of tools to generate Java from a specific EMF specification the JavaXMI.
+
+The JavaXMI notation is a very interesting format, since it allows to model any piece of java source code in a model. In fact, this notation is an EMF representation of the AST (Abstract Syntax Tree) structure, proposed natively by eclipse, to represent Java source code through an in-memory object model.
+
+Moreover, our choice was strongly encouraged by the fact that Modisco also proposed natively Acceleo templates (http://www.eclipse.org/acceleo), to generate Java code from JavaXMI models.
+
+Unfortunately, two important features are missing from this current generator : the notions of post-processing and of veto strategy. Those two features are very important in the technical direction code generation approach, since this allows to work on the generated source code to clean or merge it, before it is written on the file system. Moreover, this can also prevent the source code from being written, if the source code is identified as being identical to the existing one.
+
+The picture below summarizes as workflow representations, the default MoDisco proposed behavior, along with the XA Optimus proposed behavior, introducing post processing & veto strategies.
+
+image:./images/m2t-javageneration/m2t-java-img01.png[]
+
+== Invoking the code generator
+
+The M2T java framework proposes the JavaGenerator class. This is the entry point for generating code.
+
+----------
+
+public IStatus generate(Model input, IPath output, Object... arguments) where
+
+----------
+
+* *Model input* is the input of the generator. For this generator, it should be an instance of the MoDisco's Model object (org.eclipse.gmt.modisco.java.Model)
+* *IPath output* should give information about where the source code is generated.
+
+Below is an example of invocation of such code generator.
+
+----------
+
+Model model = getModiscoModel();
+IPath path = this.project.getLocation().append("src/generated/java");
+new JavaGenerator().generate(model, path); 
+
+----------
+
+== What are the default processors and veto strategies ? 
+
+Here are the default called post-processors:
+
+* *The Java code merger post processor:* The merger is a tool in charge of merging the freshly generated source code with the existing one. This tool is very important, since it is in charge of ensuring that the user-implemented source code is kept across code generations.
+* *The imports cleaner post processor:* The purpose of this post processor is to scan the generated code to look for abusive usage of fully qualified names. Once one is detected, if possible, it is removed and an import is created instead.
+
+Currently, no veto strategy is explicitly specified.
+
+== How to override the default post processors and veto strategy ?
+
+To override the default processors and/or the veto strategy, you will have to create a new generator, that inherits from the proposed JavaGenerator one. This JavaGenerator class offers two methods, that will let you specify your own behaviour. Please find an example below of generator overload
+
+----------
+
+import java.util.Collection;
+
+import org.eclipse.acceleo.engine.generation.strategy.IAcceleoGenerationStrategy;
+
+public class MyJavaGenerator extends JavaGenerator {
+
+	@Override
+	public IAcceleoGenerationStrategy getGenerationStrategy() {
+		return super.getGenerationStrategy();
+	}
+
+	@Override
+	protected Collection getPostProcessors() {
+		Collection postProcessors = super.getPostProcessors();
+		postProcessors.add(new MyPostProcessor());
+		return postProcessors;
+		}
+	}
+}
+
+----------
+
+''''

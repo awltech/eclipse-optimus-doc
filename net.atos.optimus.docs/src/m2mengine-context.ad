@@ -1,0 +1,55 @@
+:title: M2M Engine Context Usage
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#M2M Engine Context Usage#
+|===
+
+''''
+
+== About the context
+
+When executing transformations, you generally need a way to easily find information resulting from previous transformations. This ease can be brought by proposing a way to match elements from input models with elements from output models. Doing this is the role of the Context.
+
+The Context is a structure that proposes a way to store elements, as follows.
+
+== Standard API
+
+At first, this context will be able to store root elements. The storage of root elements is a facility that is often used outside of the transformations scope. This means that, once the execution of Optimus is finished, it is able to retrieve the root elements from the context, to provide them to the next step of a more global process. Moreover, root elements are identified programmatically by a keyword, to help the user distinguishing a given root from others.
+
+Secondly, it is also possible to match two elements with each other, and identify the link by a key. This key is very important, if there are more than one object from the output model, that should be linked with an object of the input model.
+
+As a consequence, the Context API is as follows:
+
+* *void put(EObject source, String key, EObject value)* to match the produced value with the source object, discriminated by the key value
+* *EObject get(EObject source, String key)* to get the output element linked with the source and identified by the key
+
+* *Collection getRoots()* to get all the roots registered within this context
+* *EObject getRoot(String key)* to get a specific root identified by the provided key
+* *void putRoot(EObject root, String key)* to add a new root to this context, identified by the provided key
+
+* *void putProperty(String key, String property)* to put a property into the context.
+* *String getProperty(String key)* to retrieve a property value
+
+* *void dispose()* to clear the context, once it is not used anymore. Invoking this method once the process is finished is highly recommended.
+
+Finally, as the Context description is an Interface (ITransformationContext), you are free to override the behavior to propose your own structure. Of course, a default implementation is proposed with the framework (DefaultTransformationContext).
+
+== Dependency injection (from Optimus 1.1.x)
+
+To reduce the verbosity of transformations, it is now possible to rely on dependency injection to inject elements from context into transformations
+
+Such injection is possible thanks to annotations you can put on fields. The API is available as follows:
+
+* *@ContextParameter*: used to inject a property into the transformation
+* *@RootElementContext*: Used to inject a root element value into the transformation
+* *@ObjectElementContext*: Used to inject an element with EObject key is the getEObject() value
+* *@ParentElementContext*: Used to inject an element with EObject key is the parent of the getEObject() value
+* *@CustomElementContext*: Used to inject an element with EObject key is based on a custom implementation (IContextRetriever). (Most of the time, the usage of context API is easier in this case....)
+
+Most of the time, we inject a main *root* element in the context, as well as EObjects that are the direct counterpart of an input EObject one
+To cope with that a *ContextDefaultValue* helping class has been given with some constants to ensure you always use the same...
+
+Of course, the annotations proposed come with additional API such as the visibility and nullability. If you are interested in them, feel free to browse the Javadoc !
+
+''''
