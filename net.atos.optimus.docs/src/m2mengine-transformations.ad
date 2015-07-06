@@ -1,0 +1,105 @@
+:title: Writing your own transformations
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#Contributing M2M Transformations#
+|===
+
+''''
+
+== Purpose
+
+We present in this page how to use the fluent API, available in Optimus 1.2.x, 
+dedicated to write transformation in more simple manner. Below we describe several use cases and illustrate them with sample code.
+
+== Class creation
+
+We assume that we want to create a simple class with fields, getter, setter and constructor. 
+To begin, we need to create the class package as follows :
+----------
+JavaPackage createdPackage = PackageHelper.createPackage(javaModel,
+				"my.fullqualified.package");
+----------
+The already existed package chunk aren't recreated. 
+
+With the created package, we can generate a new class within it as follows :
+----------
+JavaClass createdClass = ClassHelper.createClass(createdPackage, "myClass", VisibilityKind.PUBLIC, InheritanceKind.NONE, false /* proxy state */, "mySuperClass", "myImplementedInterface");
+----------
+
+If you don't want to specified all the details and take profit of default behavior, you can choose to create class by using the helper as builder as follows :
+----------
+JavaClass createdClass = ClassHelper
+				.builder(createdPackage,
+						"myClass")
+				.setSuperClass("mySuperClass")
+				.addInterfaces("myImplementedInterface")
+				.build();
+----------
+
+Now, you can create fields with similar process :
+----------
+Field createdIntField = FieldHelper.createField(createdClass, VisibilityKind.PRIVATE, false /* static state */, false /* final state */, "int", "intField");
+Field createdListField = FieldHelper.createField(createdClass, VisibilityKind.PRIVATE, false /* static state */, false /* final state */, "List<Integer>", "listField");
+----------
+
+or with builder : 
+----------
+Field createdIntField = FieldHelper
+				.builder(createdClass, "int")
+				.setName("intField")
+				.build();
+				
+Field createdListField = FieldHelper
+				.builder(createdClass, "List<Integer>")
+				.setName("listField")
+				.build();
+----------
+
+So, the getter and setter generation are really easy :
+
+----------
+Method getter = GetterHelper.createGetter(createdClass, VisibilityKind.PUBLIC, false /* final state */, createdIntField, "getIntField");
+Method setter = SetterHelper.createSetter(createdClass, VisibilityKind.PUBLIC, false /* final state */, createdIntField, "setIntField", "value");
+----------
+
+or with builder :
+
+----------
+Method getter = GetterHelper
+				.builder(createdClass, createdIntField)
+				.build();
+Method setter =	SetterHelper
+				.builder(createdClass, createdIntField)
+				.setParameterName("value")
+				.build();
+----------
+
+Finally, we can create a constructor for the class as follows :
+
+----------
+Constructor constructor = ConstructorHelper.createConstructor(createdClass, VisibilityKind.PUBLIC, createdIntField, createdListField);
+----------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
