@@ -27,6 +27,8 @@ We can generate the following concept of the Java language :
 * <<Class>>
 * <<Interface>>
 * <<Import>>
+* <<Field>>
+* <<Constructor>>
 
 
 [[Package]]
@@ -47,17 +49,17 @@ JavaPackage createdPackage = PackageHelper.createPackage(javaModel, "my.generate
 We assume that we created the package above
 
 ----------
-JavaClass createdClass = ClassHelper.createClass(createdPackage, "myClass", VisibilityKind.PUBLIC,
+JavaClass createdClass = ClassHelper.createClass(createdPackage, "MyClass", VisibilityKind.PUBLIC,
 				InheritanceKind.NONE, false // proxy_state
-				, "SuperClass", "myImplementedInterface1", "myImplementedInterface2");
+				, "SuperClass", "MyImplementedInterface1", "MyImplementedInterface2");
 ----------
 
 Or with builder :
 
 ----------
-JavaClass createdClass = ClassHelper.builder(createdPackage, "myClass").setVisibility(VisibilityKind.PUBLIC)
+JavaClass createdClass = ClassHelper.builder(createdPackage, "MyClass").setVisibility(VisibilityKind.PUBLIC)
 				.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
-				.addInterfaces("myImplementedInterface1", "myImplementedInterface2").build();
+				.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
 ----------
 
 Generating code :
@@ -65,15 +67,15 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public class myClass extends SuperClass implements myImplementedInterface1,
-		myImplementedInterface2 {
+public class MyClass extends SuperClass implements MyImplementedInterface1,
+		MyImplementedInterface2 {
 }
 ----------
 
 A more complex example with default behavior :
 
 ----------
-JavaClass createdComplexClass = ClassHelper.builder(createdPackage, "myComplexClass<T super Object>")
+JavaClass createdComplexClass = ClassHelper.builder(createdPackage, "MyComplexClass<T super Object>")
 				.setSuperClass("MySuperClass<T>").build();
 ----------
 
@@ -82,7 +84,7 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public class myComplexClass<T extends Object> extends MySuperClass<T> {
+public class MyComplexClass<T extends Object> extends MySuperClass<T> {
 }
 ----------
 
@@ -91,16 +93,16 @@ public class myComplexClass<T extends Object> extends MySuperClass<T> {
 We assume that we created the class above
 
 ----------
-JavaClass createdInternalClass = ClassHelper.createInternalClass(createdClass, "myInternalClass", VisibilityKind.PUBLIC, InheritanceKind.NONE, false // proxy_state
-				, "SuperClass", "myImplementedInterface1", "myImplementedInterface2");
+JavaClass createdInternalClass = ClassHelper.createInternalClass(createdClass, "MyInternalClass", VisibilityKind.PUBLIC, InheritanceKind.NONE, false // proxy_state
+				, "SuperClass", "MyImplementedInterface1", "MyImplementedInterface2");
 ----------
 
 Or with builder :
 
 ----------
-JavaClass createdInternalClass = ClassHelper.internalClassBuilder(createdClass, "myInternalClass").setVisibility(VisibilityKind.PUBLIC)
+JavaClass createdInternalClass = ClassHelper.internalClassBuilder(createdClass, "MyInternalClass").setVisibility(VisibilityKind.PUBLIC)
 				.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
-				.addInterfaces("myImplementedInterface1", "myImplementedInterface2").build();
+				.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
 ----------
 
 Generating code :
@@ -108,10 +110,10 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public class myClass extends SuperClass implements myImplementedInterface1,
-		myImplementedInterface2 {
-	public class myInternalClass extends SuperClass implements
-			myImplementedInterface1, myImplementedInterface2 {
+public class MyClass extends SuperClass implements MyImplementedInterface1,
+		MyImplementedInterface2 {
+	public class MyInternalClass extends SuperClass implements
+			MyImplementedInterface1, MyImplementedInterface2 {
 	}
 }
 ----------
@@ -123,18 +125,18 @@ public class myClass extends SuperClass implements myImplementedInterface1,
 We assume that we created the package above
 
 ----------
-Interface createdInterface = InterfaceHelper.createInterface(createdPackage, "myInterface",
+Interface createdInterface = InterfaceHelper.createInterface(createdPackage, "MyInterface",
 				VisibilityKind.PUBLIC, false // abstract_state
 				, InheritanceKind.NONE, false // proxy_state
-				, "mySuperInterface1", "mySuperInterface2");
+				, "MySuperInterface1", "MySuperInterface2");
 ----------
 
 Or with builder :
 
 ----------
-Interface createdInterface = createdInterface = InterfaceHelper.builder(createdPackage, "myInterface").setVisibility(VisibilityKind.PUBLIC)
+Interface createdInterface = createdInterface = InterfaceHelper.builder(createdPackage, "MyInterface").setVisibility(VisibilityKind.PUBLIC)
 				.setAbstract(false).setProxy(false).setInheritance(InheritanceKind.NONE)
-				.addInterfaces("mySuperInterface1", "mySuperInterface2").build();
+				.addInterfaces("MySuperInterface1", "MySuperInterface2").build();
 ----------
 
 Generating code :
@@ -142,7 +144,7 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public interface myInterface extends mySuperInterface1, mySuperInterface2 {
+public interface MyInterface extends MySuperInterface1, MySuperInterface2 {
 }
 ----------
 
@@ -150,7 +152,7 @@ A more complex example with default behavior :
 
 ----------
 Interface createdComplexInterface = InterfaceHelper
-				.builder(createdPackage, "myComplexInterface<T extends Object>")
+				.builder(createdPackage, "MyComplexInterface<T extends Object>")
 				.addInterfaces("SuperParametricInterface<Integer>").build();
 ----------
 
@@ -159,7 +161,7 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public interface myComplexInterface<T extends Object> extends
+public interface MyComplexInterface<T extends Object> extends
 		SuperParametricInterface<Integer> {
 }
 ----------
@@ -170,10 +172,10 @@ public interface myComplexInterface<T extends Object> extends
 We assume that we created classes and the interfaces above. You can add import during the creation process :
 
 ----------
-JavaClass anotherClass = ClassHelper.builder(createdPackage, "anotherClass").addImports("java.util.List")
+JavaClass anotherClass = ClassHelper.builder(createdPackage, "AnotherClass").addImports("java.util.List")
 				.addStaticImports("java.util.Collections.*").build();
 
-Interface anotherInterface = InterfaceHelper.builder(createdPackage, "anotherInterface")
+Interface anotherInterface = InterfaceHelper.builder(createdPackage, "AnotherInterface")
 				.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
 ----------
 
@@ -194,8 +196,8 @@ package my.generated.javapackage;
 import java.util.List;
 import java.util.Collections.*;
 
-public class myClass extends SuperClass implements myImplementedInterface1,
-		myImplementedInterface2 {
+public class MyClass extends SuperClass implements MyImplementedInterface1,
+		MyImplementedInterface2 {
 }
 
 // Interface
@@ -205,15 +207,202 @@ import java.util.*;
 import java.lang.*;
 import java.util.Collections.*;
 
-public interface myInterface extends mySuperInterface1, mySuperInterface2 {
+public interface MyInterface extends MySuperInterface1, MySuperInterface2 {
 }
 ----------
 
+[[Field]]
+== Generating Field
+
+We assume that we created classes above.
+
+----------
+Field createdField = FieldHelper.createField(createdClass, VisibilityKind.PRIVATE, false // static_state
+				, false // final_state
+				, "MyFieldType", "myField");
+
+----------
+
+Or with builder :
+
+----------
+Field createdAnotherField = FieldHelper.builder(createdClass, "int").setVisibility(VisibilityKind.PRIVATE)
+				.setStatic(false).setFinal(false).setName("myOtherField").build();
+----------
+
+Generating code :
+
+----------
+// Some class code
+	private MyFieldType myField;
+	private int myOtherField;
+// Some class code
+----------
+
+A more complex example with default behavior :
+
+----------
+Field createdComplexField =  FieldHelper.builder(createdClass, "List<Integer>").build();
+----------
+
+Generating code :
+
+----------
+// Some class code
+	private List<Integer> list;
+// Some class code
+----------
+
+== Generating method
+
+[[Constructor]]
+=== Generating Constructor
+
+We assume that we created classes and fields above.
+
+----------
+Constructor createdConstructor = ConstructorHelper.createConstructor(createdClass, VisibilityKind.PUBLIC,
+				createdField, createdAnotherField); // Added parameter with auto-generated name and set specified fields
+----------
+
+Generating code :
+
+----------
+public MyClass(MyFieldType myFieldType, int myInt) {
+		this.myField = myFieldType;
+		this.myOtherField = myInt;
+}
+----------
+
+Or with builder :
+
+----------
+Constructor createdConstructor = ConstructorHelper.builder(createdClass).setVisibility(VisibilityKind.PUBLIC)
+				.addParameterAndSetAssociatedFields(createdField, createdAnotherField) // Added parameter with auto-generated name and set specified fields
+				.addExceptions("Exception1","Exception2") // Added exceptions in the builder
+				.build();
+----------
+
+Generating code :
+
+----------
+public MyClass(MyFieldType myFieldType, int myInt) throws Exception1,
+			Exception2 {
+		this.myField = myFieldType;
+		this.myOtherField = myInt;
+}
+----------
+
+We have additionnal ways to add parameters
+
+----------
+Constructor createdAnotherConstructor = ConstructorHelper.builder(createdClass)
+				.addParameter("int", "parameter").addParameter("List<Integer>", "parameter2") // Added parameter with specified type and name, no field setting
+				.build();
+
+Constructor createdAnotherConstructor2 = ConstructorHelper.builder(createdClass)
+				.addParameterAndSetAssociatedField("param1", createdField) // Added parameter with specified name and set specified field
+				.addParameterAndSetAssociatedField("param2", createdAnotherField) // Added parameter with specified name and set specified field
+				.build();
+
+Constructor createdAnotherConstructor3 = ConstructorHelper.builder(createdClass) 
+				.addParameters("int", "List<Integer>") // Added parameter with generated name, no field setting
+				.build();
+----------
+
+Generating code :
+
+----------
+public MyClass(int parameter, List<Integer> parameter2);
+
+public MyClass(MyFieldType param1, int param2){
+		this.myField=param1;
+		this.myOtherField=param2;
+}
+
+public MyClass(int myInt, List<Integer> list);
+----------
+
+In the case one and three, you need to had some code in the constructor (see the <<Instruction>> part).
+
+Furthermore, we can add parameters and exceptions after the constructor creation by method with the same name.
+
+[[Instruction]]
+== Generating instruction
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------
+
+----------
+
+Or with builder :
+
+----------
+
+----------
+
+Generating code :
+
+----------
+
+----------
+
+A more complex example with default behavior :
+
+----------
+
+----------
+
+Generating code :
+
+----------
+
+----------
 
 
 
