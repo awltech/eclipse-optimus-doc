@@ -24,11 +24,17 @@ There is three ways to write transformation on concepts :
 We can generate the following concept of the Java language :
 
 * <<Package>>
-* <<Class>>
-* <<Interface>>
-* <<Import>>
+* <<AbstractClass>>
+** <<Class>>
+** <<Interface>>
+** <<Import>>
 * <<Field>>
-* <<Constructor>>
+* <<AbstractMethod>>
+** <<Constructor>>
+** <<Getter>>
+** <<Setter>>
+** <<Method>>
+* <<Instruction>>
 
 
 [[Package]]
@@ -41,6 +47,7 @@ The already existed package chunk aren't recreated by the method below.
 JavaPackage createdPackage = PackageHelper.createPackage(javaModel, "my.generated.javapackage");
 ----------
 
+[[AbstractClass]]
 == Generating Class, Interface and enumeration
 
 [[Class]]
@@ -253,7 +260,8 @@ Generating code :
 // Some class code
 ----------
 
-== Generating method
+[[AbstractMethod]]
+== Generating constructor and method
 
 [[Constructor]]
 === Generating Constructor
@@ -269,8 +277,8 @@ Generating code :
 
 ----------
 public MyClass(MyFieldType myFieldType, int myInt) {
-		this.myField = myFieldType;
-		this.myOtherField = myInt;
+	this.myField = myFieldType;
+	this.myOtherField = myInt;
 }
 ----------
 
@@ -288,8 +296,8 @@ Generating code :
 ----------
 public MyClass(MyFieldType myFieldType, int myInt) throws Exception1,
 			Exception2 {
-		this.myField = myFieldType;
-		this.myOtherField = myInt;
+	this.myField = myFieldType;
+	this.myOtherField = myInt;
 }
 ----------
 
@@ -316,16 +324,167 @@ Generating code :
 public MyClass(int parameter, List<Integer> parameter2);
 
 public MyClass(MyFieldType param1, int param2){
-		this.myField=param1;
-		this.myOtherField=param2;
+	this.myField=param1;
+	this.myOtherField=param2;
 }
 
 public MyClass(int myInt, List<Integer> list);
 ----------
 
-In the case one and three, you need to had some code in the constructor (see the <<Instruction>> part).
+In the case one and three, you need to add some code in the constructor body (see the <<Instruction>> part).
 
 Furthermore, we can add parameters and exceptions after the constructor creation by method with the same name.
+
+[[Getter]]
+=== Generating Getter
+
+We assume that we created classes and fields above.
+
+----------
+Method getter = GetterHelper.createGetter(createdClass, VisibilityKind.PUBLIC, false // final_state
+				, createdField, "getField");
+----------
+
+Or with builder :
+
+----------
+Method getter = GetterHelper.builder(createdClass, createdField).setVisibility(VisibilityKind.PUBLIC).setFinal(false)
+				.setName("getField").build();
+----------
+
+Generating code :
+
+----------
+public MyFieldType getField() {
+	return this.myField;
+}
+----------
+
+Another example with default behavior (auto-generated name) :
+
+----------
+Method anotherGetter = GetterHelper.builder(createdClass, createdField).build();
+----------
+
+Generating code :
+
+----------
+public MyFieldType getMyField() {
+	return this.myField;
+}
+----------
+
+[[Setter]]
+=== Generating Setter
+
+We assume that we created classes and fields above.
+
+----------
+Method setter = SetterHelper.createSetter(createdClass, VisibilityKind.PUBLIC, false // final_state
+				, createdAnotherField, "setField", "parameter");
+----------
+
+Or with builder :
+
+----------
+Method setter = SetterHelper.builder(createdClass, createdAnotherField).setVisibility(VisibilityKind.PUBLIC)
+				.setFinal(false).setName("setField").setParameterName("parameter").build();
+----------
+
+Generating code :
+
+----------
+public void setField(int parameter) {
+	this.myOtherField = parameter;
+}
+----------
+
+Another example with default behavior (auto-generated name and parameter name) :
+
+----------
+Method setter = SetterHelper.builder(createdClass, createdAnotherField).build();
+----------
+
+Generating code :
+
+----------
+public void setMyOtherField(int myInt) {
+	this.myOtherField = myInt;
+}
+----------
+
+[[Method]]
+=== Generating method
+
+We assume that we created classes and interfaces above. We can add method to a class, an interface or an enumeration.
+
+----------
+Method method = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false // static_state
+				, InheritanceKind.NONE, "int[]", "aMethod", "Exception1", "Exception2");
+----------
+
+Or with builder :
+
+----------
+Method method = MethodHelper.builder(createdClass, "aMethod").setVisibility(VisibilityKind.PUBLIC)
+				.setStatic(false).setInheritance(InheritanceKind.NONE).setReturnType("int[]")
+				.addExceptions("Exception1", "Exception2").build();
+----------
+
+Generating code :
+
+----------
+public int[] aMethod() throws Exception1, Exception2;
+----------
+
+We have additional ways to add parameters
+
+----------
+Method createdAnotherMethod = MethodHelper.builder(createdClass, "anotherMethod")
+				.addParameter("int", "parameter").addParameter("List<Integer>", "parameter2").build();
+
+Method createdAnotherMethod2 = MethodHelper.builder(createdClass, "anotherMethod2")
+				.addParameters("int", "List<Integer>")
+				.build();
+----------
+
+Generating code :
+
+----------
+public void anotherMethod(int parameter, List<Integer> parameter2);
+
+public void anotherMethod2(int myInt, List<Integer> list);
+----------
+
+When you add a non abstract method to a class, you need to add some code in the method body (see the <<Instruction>> part).
+
+Furthermore, we can add parameters and exceptions after the constructor creation by method with the same name.
+
+Another example with default behavior :
+
+----------
+Method defaultMethod = MethodHelper.builder(createdClass, "aComplexMethod").build();
+----------
+
+Generating code :
+
+----------
+public void aComplexMethod();
+----------
+
+Another complex example, generic method and array parameters  :
+
+----------
+Method genericMethod = MethodHelper.builder(createdClass, "genericMethod")
+				.setReturnType("<T super Collection<?>> List<S>").addParameter("T[]", "arrayParam")
+				.addParameter("Collection<Object>[]", "complexArrayParam").build();
+----------
+
+Generating code :
+
+----------
+public <T extends Collection<?>> List<S> genericMethod(T[] arrayParam, Collection<Object>[] complexArrayParam);
+----------
 
 [[Instruction]]
 == Generating instruction
