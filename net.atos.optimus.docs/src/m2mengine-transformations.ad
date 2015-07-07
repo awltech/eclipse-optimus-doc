@@ -2,93 +2,212 @@
 
 [cols="a,10a"]
 |===
-|image:./images/optimus-logo.png[height="128"]|[headertitle]#Contributing M2M Transformations#
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#Writing your own transformations#
 |===
 
 ''''
 
 == Purpose
 
-We present in this page how to use the fluent API, available in Optimus 1.2.x, 
-dedicated to write transformation in more simple manner. Below we describe several use cases and illustrate them with sample code.
+We present in this page how to write transformation with the fluent API, available since Optimus 1.2.
+This API propose a high level abstraction of the Java Abstract Syntax Tree used by modisco. 
+So, the API enable to manipulate concept of the Java language by encapsulate AST object, accessible by the *getDelegate()* method.
 
-== Class creation
+Below, we describe how to generate the different concept of the Java language with sample code and we show the associated code produced. 
 
-We assume that we want to create a simple class with fields, getter, setter and constructor. 
-To begin, we need to create the class package as follows :
-----------
-JavaPackage createdPackage = PackageHelper.createPackage(javaModel,
-				"my.fullqualified.package");
-----------
-The already existed package chunk aren't recreated. 
+There is three ways to write transformation on concepts :
 
-With the created package, we can generate a new class within it as follows :
-----------
-JavaClass createdClass = ClassHelper.createClass(createdPackage, "myClass", VisibilityKind.PUBLIC, InheritanceKind.NONE, false /* proxy state */, "mySuperClass", "myImplementedInterface");
-----------
+	* Use static method in helper for a full customization of the generated concept
+	* Build the concept with helper and take profit of some default behaviors.
+	* Add directly element to the created concept.
 
-If you don't want to specified all the details and take profit of default behavior, you can choose to create class by using the helper as builder as follows :
-----------
-JavaClass createdClass = ClassHelper
-				.builder(createdPackage,
-						"myClass")
-				.setSuperClass("mySuperClass")
-				.addInterfaces("myImplementedInterface")
-				.build();
-----------
+We can generate the following concept of the Java language :
 
-Now, you can create fields with similar process :
-----------
-Field createdIntField = FieldHelper.createField(createdClass, VisibilityKind.PRIVATE, false /* static state */, false /* final state */, "int", "intField");
-Field createdListField = FieldHelper.createField(createdClass, VisibilityKind.PRIVATE, false /* static state */, false /* final state */, "List<Integer>", "listField");
-----------
+* <<Package>>
+* <<Class>>
+* <<Interface>>
+* <<Import>>
 
-or with builder : 
-----------
-Field createdIntField = FieldHelper
-				.builder(createdClass, "int")
-				.setName("intField")
-				.build();
-				
-Field createdListField = FieldHelper
-				.builder(createdClass, "List<Integer>")
-				.setName("listField")
-				.build();
-----------
 
-So, the getter and setter generation are really easy :
+[[Package]]
+== Generating Package
+
+To create a package, we need the java model (mainly the source folder) and his full qualified name. 
+The already existed package chunk aren't recreated by the method below.
 
 ----------
-Method getter = GetterHelper.createGetter(createdClass, VisibilityKind.PUBLIC, false /* final state */, createdIntField, "getIntField");
-Method setter = SetterHelper.createSetter(createdClass, VisibilityKind.PUBLIC, false /* final state */, createdIntField, "setIntField", "value");
+JavaPackage createdPackage = PackageHelper.createPackage(javaModel, "my.generated.javapackage");
 ----------
 
-or with builder :
+== Generating Class, Interface and enumeration
+
+[[Class]]
+=== Generating Class
+
+We assume that we created the package above
 
 ----------
-Method getter = GetterHelper
-				.builder(createdClass, createdIntField)
-				.build();
-Method setter =	SetterHelper
-				.builder(createdClass, createdIntField)
-				.setParameterName("value")
-				.build();
+JavaClass createdClass = ClassHelper.createClass(createdPackage, "myClass", VisibilityKind.PUBLIC,
+				InheritanceKind.NONE, false // proxy_state
+				, "SuperClass", "myImplementedInterface1", "myImplementedInterface2");
 ----------
 
-Finally, we can create a constructor for the class as follows :
+Or with builder :
 
 ----------
-Constructor constructor = ConstructorHelper.createConstructor(createdClass, VisibilityKind.PUBLIC, createdIntField, createdListField);
+JavaClass createdClass = ClassHelper.builder(createdPackage, "myClass").setVisibility(VisibilityKind.PUBLIC)
+				.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
+				.addInterfaces("myImplementedInterface1", "myImplementedInterface2").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public class myClass extends SuperClass implements myImplementedInterface1,
+		myImplementedInterface2 {
+}
+----------
+
+A more complex example with default behavior :
+
+----------
+JavaClass createdComplexClass = ClassHelper.builder(createdPackage, "myComplexClass<T super Object>")
+				.setSuperClass("MySuperClass<T>").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public class myComplexClass<T extends Object> extends MySuperClass<T> {
+}
+----------
+
+==== Generating internal class
+
+We assume that we created the class above
+
+----------
+JavaClass createdInternalClass = ClassHelper.createInternalClass(createdClass, "myInternalClass", VisibilityKind.PUBLIC, InheritanceKind.NONE, false // proxy_state
+				, "SuperClass", "myImplementedInterface1", "myImplementedInterface2");
+----------
+
+Or with builder :
+
+----------
+JavaClass createdInternalClass = ClassHelper.internalClassBuilder(createdClass, "myInternalClass").setVisibility(VisibilityKind.PUBLIC)
+				.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
+				.addInterfaces("myImplementedInterface1", "myImplementedInterface2").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public class myClass extends SuperClass implements myImplementedInterface1,
+		myImplementedInterface2 {
+	public class myInternalClass extends SuperClass implements
+			myImplementedInterface1, myImplementedInterface2 {
+	}
+}
 ----------
 
 
+[[Interface]]
+=== Generating Interface
 
+We assume that we created the package above
 
+----------
+Interface createdInterface = InterfaceHelper.createInterface(createdPackage, "myInterface",
+				VisibilityKind.PUBLIC, false // abstract_state
+				, InheritanceKind.NONE, false // proxy_state
+				, "mySuperInterface1", "mySuperInterface2");
+----------
 
+Or with builder :
 
+----------
+Interface createdInterface = createdInterface = InterfaceHelper.builder(createdPackage, "myInterface").setVisibility(VisibilityKind.PUBLIC)
+				.setAbstract(false).setProxy(false).setInheritance(InheritanceKind.NONE)
+				.addInterfaces("mySuperInterface1", "mySuperInterface2").build();
+----------
 
+Generating code :
 
+----------
+package my.generated.javapackage;
 
+public interface myInterface extends mySuperInterface1, mySuperInterface2 {
+}
+----------
+
+A more complex example with default behavior :
+
+----------
+Interface createdComplexInterface = InterfaceHelper
+				.builder(createdPackage, "myComplexInterface<T extends Object>")
+				.addInterfaces("SuperParametricInterface<Integer>").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public interface myComplexInterface<T extends Object> extends
+		SuperParametricInterface<Integer> {
+}
+----------
+
+[[Import]]
+=== Generating Import
+
+We assume that we created classes and the interfaces above. You can add import during the creation process :
+
+----------
+JavaClass anotherClass = ClassHelper.builder(createdPackage, "anotherClass").addImports("java.util.List")
+				.addStaticImports("java.util.Collections.*").build();
+
+Interface anotherInterface = InterfaceHelper.builder(createdPackage, "anotherInterface")
+				.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
+----------
+
+Or after :
+
+----------
+createdClass.addImports("java.util.List").addStaticImports("java.util.Collections.*");
+		
+createdInterface.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*");
+----------
+
+Generating code :
+
+----------
+// Class
+package my.generated.javapackage;
+
+import java.util.List;
+import java.util.Collections.*;
+
+public class myClass extends SuperClass implements myImplementedInterface1,
+		myImplementedInterface2 {
+}
+
+// Interface
+package my.generated.javapackage;
+
+import java.util.*;
+import java.lang.*;
+import java.util.Collections.*;
+
+public interface myInterface extends mySuperInterface1, mySuperInterface2 {
+}
+----------
 
 
 
