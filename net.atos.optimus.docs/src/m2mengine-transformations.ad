@@ -27,6 +27,7 @@ We can generate the following concept of the Java language :
 * <<AbstractClass>>
 ** <<Class>>
 ** <<Interface>>
+** <<Enumeration>>
 ** <<Import>>
 * <<Field>>
 * <<AbstractMethod>>
@@ -48,7 +49,7 @@ JavaPackage createdPackage = PackageHelper.createPackage(javaModel, "my.generate
 ----------
 
 [[AbstractClass]]
-== Generating Class, Interface and enumeration
+== Generating Class, Interface and Enumeration
 
 [[Class]]
 === Generating Class
@@ -173,16 +174,68 @@ public interface MyComplexInterface<T extends Object> extends
 }
 ----------
 
+[[Enumeration]]
+=== Generating Enumeration
+
+We assume that we created the package above
+
+----------
+JavaEnum createdEnum = EnumHelper.createEnum(createdPackage, "myEnum", false // proxy_state
+				, "MyImplementedInterface1", "MyImplementedInterface2").addEnumConstant("MyConstant");
+----------
+
+Or with builder :
+
+----------
+createdEnum = EnumHelper.builder(createdPackage, "myEnum").setProxy(false)
+				.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").addEnumConstant("MyConstant").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+import java.util.List;
+
+public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {
+	MyConstant();
+}
+----------
+
+Warning : you must add at least one constant when you create a enumeration or the generation doesn't work properly.
+With the *addEnumConstant* methods, you can add list of arguments to an enum constant (see the <<Instruction>> part).
+
+A more complex example with default behavior :
+
+----------
+JavaEnum createdComplexEnum = EnumHelper.builder(createdPackage, "myDefaultEnum").addEnumConstant("MyFirstConstant")
+				.addEnumConstant("MySecondConstant").addEnumConstant("MyThirdConstant").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public enum myDefaultEnum {
+	MyFirstConstant(), MySecondConstant(), MyThirdConstant();
+}
+----------
+
 [[Import]]
 === Generating Import
 
-We assume that we created classes and the interfaces above. You can add import during the creation process :
+We assume that we created classes, interfaces and enumerations above. You can add import during the creation process :
 
 ----------
 JavaClass anotherClass = ClassHelper.builder(createdPackage, "AnotherClass").addImports("java.util.List")
 				.addStaticImports("java.util.Collections.*").build();
 
 Interface anotherInterface = InterfaceHelper.builder(createdPackage, "AnotherInterface")
+				.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
+
+JavaEnum anotherEnum = EnumHelper.builder(createdPackage, "AnotherEnum")
 				.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
 ----------
 
@@ -192,6 +245,8 @@ Or after :
 createdClass.addImports("java.util.List").addStaticImports("java.util.Collections.*");
 		
 createdInterface.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*");
+
+createdEnum.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*");
 ----------
 
 Generating code :
@@ -216,12 +271,22 @@ import java.util.Collections.*;
 
 public interface MyInterface extends MySuperInterface1, MySuperInterface2 {
 }
+
+// Enum
+package my.generated.javapackage;
+
+import java.util.*;
+import java.lang.*;
+import java.util.Collections.*;
+
+public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {
+}
 ----------
 
 [[Field]]
 == Generating Field
 
-We assume that we created classes above.
+We assume that we created classes and enumerations above.
 
 ----------
 Field createdField = FieldHelper.createField(createdClass, VisibilityKind.PRIVATE, false // static_state
@@ -249,24 +314,24 @@ Generating code :
 A more complex example with default behavior :
 
 ----------
-Field createdComplexField =  FieldHelper.builder(createdClass, "List<Integer>").build();
+Field createdComplexField =  FieldHelper.builder(createdEnum, "List<Integer>").build();
 ----------
 
 Generating code :
 
 ----------
-// Some class code
+// Some enum code
 	private List<Integer> list;
-// Some class code
+// Some enum code
 ----------
 
 [[AbstractMethod]]
-== Generating constructor and method
+== Generating Constructor and Method
 
 [[Constructor]]
 === Generating Constructor
 
-We assume that we created classes and fields above.
+We assume that we created classes, enumerations and fields above.
 
 ----------
 Constructor createdConstructor = ConstructorHelper.createConstructor(createdClass, VisibilityKind.PUBLIC,
@@ -285,7 +350,7 @@ public MyClass(MyFieldType myFieldType, int myInt) {
 Or with builder :
 
 ----------
-Constructor createdConstructor = ConstructorHelper.builder(createdClass).setVisibility(VisibilityKind.PUBLIC)
+Constructor createdConstructor = ConstructorHelper.builder(createdEnum).setVisibility(VisibilityKind.PUBLIC)
 				.addParameterAndSetAssociatedFields(createdField, createdAnotherField) // Added parameter with auto-generated name and set specified fields
 				.addExceptions("Exception1","Exception2") // Added exceptions in the builder
 				.build();
@@ -294,14 +359,14 @@ Constructor createdConstructor = ConstructorHelper.builder(createdClass).setVisi
 Generating code :
 
 ----------
-public MyClass(MyFieldType myFieldType, int myInt) throws Exception1,
+public myEnum(MyFieldType myFieldType, int myInt) throws Exception1,
 			Exception2 {
-	this.myField = myFieldType;
-	this.myOtherField = myInt;
+		this.myField = myFieldType;
+		this.myOtherField = myInt;
 }
 ----------
 
-We have additionnal ways to add parameters
+We have additional ways to add parameters
 
 ----------
 Constructor createdAnotherConstructor = ConstructorHelper.builder(createdClass)
@@ -348,7 +413,7 @@ Method getter = GetterHelper.createGetter(createdClass, VisibilityKind.PUBLIC, f
 Or with builder :
 
 ----------
-Method getter = GetterHelper.builder(createdClass, createdField).setVisibility(VisibilityKind.PUBLIC).setFinal(false)
+Method getter = GetterHelper.builder(createdEnum, createdField).setVisibility(VisibilityKind.PUBLIC).setFinal(false)
 				.setName("getField").build();
 ----------
 
@@ -377,7 +442,7 @@ public MyFieldType getMyField() {
 [[Setter]]
 === Generating Setter
 
-We assume that we created classes and fields above.
+We assume that we created classes, enumerations and fields above.
 
 ----------
 Method setter = SetterHelper.createSetter(createdClass, VisibilityKind.PUBLIC, false // final_state
@@ -402,7 +467,7 @@ public void setField(int parameter) {
 Another example with default behavior (auto-generated name and parameter name) :
 
 ----------
-Method setter = SetterHelper.builder(createdClass, createdAnotherField).build();
+Method setter = SetterHelper.builder(createdEnum, createdAnotherField).build();
 ----------
 
 Generating code :
@@ -414,9 +479,9 @@ public void setMyOtherField(int myInt) {
 ----------
 
 [[Method]]
-=== Generating method
+=== Generating Method
 
-We assume that we created classes and interfaces above. We can add method to a class, an interface or an enumeration.
+We assume that we created classes, interfaces and enumerations above. We can add method to a class, an interface or an enumeration.
 
 ----------
 Method method = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false // static_state
@@ -440,7 +505,7 @@ public int[] aMethod() throws Exception1, Exception2;
 We have additional ways to add parameters
 
 ----------
-Method createdAnotherMethod = MethodHelper.builder(createdClass, "anotherMethod")
+Method createdAnotherMethod = MethodHelper.builder(createdEnum, "anotherMethod")
 				.addParameter("int", "parameter").addParameter("List<Integer>", "parameter2").build();
 
 Method createdAnotherMethod2 = MethodHelper.builder(createdClass, "anotherMethod2")
@@ -487,7 +552,7 @@ public <T extends Collection<?>> List<S> genericMethod(T[] arrayParam, Collectio
 ----------
 
 [[Instruction]]
-== Generating instruction
+== Generating Instruction
 
 
 
