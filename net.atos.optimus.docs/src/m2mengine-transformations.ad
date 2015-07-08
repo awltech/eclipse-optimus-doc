@@ -36,7 +36,20 @@ We can generate the following concept of the Java language :
 ** <<Setter>>
 ** <<Method>>
 * <<Instruction>>
-
+** <<Constant>>
+** <<Field/Variable>>
+** <<Array>>
+** <<Operation>>
+*** <<Prefix>>
+*** <<Postfix>>
+*** <<Infix>>
+** <<Assignment>>
+*** <<Assignment/Declaration>>
+** <<Creation>>
+*** <<ArrayCreation>>
+*** <<ClassCreation>>
+** <<MethodCall>>
+** <<Argument>>
 
 [[Package]]
 == Generating Package
@@ -554,79 +567,537 @@ public <T extends Collection<?>> List<S> genericMethod(T[] arrayParam, Collectio
 [[Instruction]]
 == Generating Instruction
 
+A created instruction must be added to an abstract method via the *addInstructions()* method in order to appear during the generation process.
+We can't reuse an instruction and only specific instruction can be added to a method.
+Indeed, elementary instructions have no sense alone.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+[[Constant]]
+=== Generating Constant Instruction
 
 ----------
-
+ElementaryInstructionHelper.createInstruction(false); // false boolean
+ElementaryInstructionHelper.createInstruction(5); // 5 integer
+ElementaryInstructionHelper.createInstruction('c'); // 'c' character
+ElementaryInstructionHelper.createInstruction("bar"); // "bar" String
+ElementaryInstructionHelper.createNullInstruction(); // null
 ----------
 
-Or with builder :
+[[Field/Variable]]
+=== Generating Field, Variable Instruction
 
 ----------
+ElementaryInstructionHelper.createThisInstruction(); // this (access to current object)
+ElementaryInstructionHelper.createVariableInstruction("myVar"); // myVar (access to a variable)
+ElementaryInstructionHelper.createFieldInstruction("myField"); // this.myField (access to a field)
+----------
 
+[[Array]]
+=== Generating Array Instruction
+
+Access to an index of a field array :
+
+----------
+ArrayInstructionHelper.builderWithField("myArrayField").addIndex(5, 2).build();
+
+// this.myArrayField[5][2]
+----------
+
+Access to an index holding by fields and variables in a variable array :
+
+----------
+ArrayInstructionHelper.builderWithVariable("myArrayVariable")
+			.addFieldIndex("fieldIndex", "fieldIndex2").addVariableIndex("variableIndex1", "variableIndex2")
+			.build();
+
+// myArrayVariable[this.fieldIndex][this.fieldIndex2][variableIndex1][variableIndex2]
+----------
+
+Access to an index giving by a method return in a array returning by another method :
+
+----------
+ArrayInstructionHelper
+			.builder(CallInstructionHelper.createThisMethodCallInstruction("getArray"))
+			.addIndex(CallInstructionHelper.createThisMethodCallInstruction("getIndex")).build();
+				
+// this.getArray()[this.getIndex()]
+----------
+
+You can replace the calling instruction by any other *IElementary* instruction.
+
+[[Operation]]
+=== Generating Operation Instruction
+
+[[Prefix]]
+==== Generating Prefix Operation
+
+Prefix operation with boolean constant :
+
+----------
+ElementaryInstruction inst1 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.NOT).setOperand(true).build();
+// !true
+----------
+
+Prefix operation with field and array field :
+
+----------
+ElementaryInstruction inst2 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT).setFieldOperand("myField")
+			.build();
+// ++this.myField
+
+ElementaryInstruction inst3 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
+			.setFieldArrayOperand("myArrayField", 3, 2).build();
+// --this.myArrayField[3][2]
+
+ElementaryInstruction inst4 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
+			.setFieldArrayOperand("myArrayField", "i", "j").build();
+// --this.myArrayField[i][j]
+----------
+
+Prefix operation with variable and array variable :
+
+----------
+ElementaryInstruction inst5 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
+			.setVariableOperand("myVariable").build();
+// --myVariable
+
+ElementaryInstruction inst6 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT)
+			.setVariableArrayOperand("myArrayVariable", 3, 2).build();
+// ++myArrayVariable[3][2]
+
+ElementaryInstruction inst7 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT)
+	 		.setVariableArrayOperand("myArrayVariable", "i", "j").build();
+// ++myArrayVariable[i][j]
+----------
+
+Prefix operation in most general case :
+
+----------
+ElementaryInstruction inst8 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.NOT)
+			.setOperand(CallInstructionHelper.createThisMethodCallInstruction("isSomething")).build();
+// !this.isSomething()
+----------
+
+You can replace the calling instruction by any other *IElementary* instruction.
+
+[[Postfix]]
+==== Generating Postfix Operation
+
+Postfix operation with field and array field :
+
+----------
+ElementaryInstruction inst1 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT).setFieldOperand("myField")
+				.build();
+// this.myField++
+
+ElementaryInstruction inst2 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+				.setFieldArrayOperand("myArrayField", 3, 2).build();
+// this.myArrayField[3][2]--
+
+ElementaryInstruction inst3 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+				.setFieldArrayOperand("myArrayField", "i", "j").build();
+// this.myArrayField[i][j]--
+----------
+
+Postfix operation with variable and array variable :
+
+----------
+ElementaryInstruction inst4 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+				.setVariableOperand("myVariable").build();
+// myVariable--
+
+ElementaryInstruction inst5 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+				.setVariableArrayOperand("myArrayVariable", 3, 2).build();
+// myArrayVariable[3][2]++
+
+ElementaryInstruction inst6 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+				.setVariableArrayOperand("myArrayVariable", "i", "j").build();
+// myArrayVariable[i][j]++
+----------
+
+Postfix operation in most general case :
+
+----------
+ElementaryInstruction inst7 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+			.setOperand(CallInstructionHelper.createThisMethodCallInstruction("getIncrementableObject")).build();
+// this.getIncrementableObject()++
+----------
+
+You can replace the calling instruction by any other *IElementary* instruction.
+
+[[Infix]]
+==== Generating Infix Operation
+
+Infix operation with constant :
+
+----------
+ElementaryInstruction inst1 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.PLUS).setLeftOperand('f')
+			.setRightOperand("oo").build();
+// 'f' + "oo"
+
+ElementaryInstruction inst2 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.PLUS).setLeftOperand("ba")
+			.setRightOperand('r').build();
+// "ba"+'r'
+
+ElementaryInstruction inst3 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.AND)
+			.setLeftOperand(true).setRightOperand(false).build();
+// true & false
+
+ElementaryInstruction inst4 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.MINUS)
+			.setLeftOperand(42).setRightOperand(24).build();
+// 42 - 24
+----------
+
+Infix operation with field and array field :
+
+----------
+ElementaryInstruction inst5 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.NOT_EQUALS).setLeftThisOperand()
+			.setRightThisOperand().build();
+// this != this
+				
+ElementaryInstruction inst6 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.DIVIDE).setLeftFieldOperand("myField")
+			.setRightFieldArrayOperand("myArrayField", 5, 5).build();
+// this.myField / this.myArrayField[5][5]
+
+ElementaryInstruction inst7 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.TIMES)
+			.setLeftFieldArrayOperand("myArrayField", 3, 2)
+			.setRightFieldArrayOperand("myOtherArrayField", "i", "j").build();
+// this.myArrayField[3][2] * this.myOtherArrayField[i][j]
+
+ElementaryInstruction inst8 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.MINUS)
+			.setLeftFieldArrayOperand("myArrayField", "i", "j").setRightFieldOperand("myField").build();
+// this.myArrayField[i][j] - this.myField
+----------
+
+Infix operation with variable and array variable :
+
+----------
+ElementaryInstruction inst9 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.DIVIDE)
+			.setLeftVariableOperand("myVariable").setRightVariableArrayOperand("myArrayVariable", 5, 5).build();
+// myVariable / myArrayVariable[5][5]
+
+ElementaryInstruction inst10 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.TIMES)
+			.setLeftVariableArrayOperand("myArrayVariable", 3, 2)
+			.setRightVariableArrayOperand("myOtherArrayVariable", "i", "j").build();
+// myArrayVariable[3][2] * myOtherArrayVariable[i][j]
+
+ElementaryInstruction inst11 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.MINUS)
+			.setLeftVariableArrayOperand("myArrayVariable", "i", "j").setRightVariableOperand("myVariable").build();
+// myArrayVariable[i][j] - myVariable
+----------
+
+Infix operation in most general case :
+
+----------
+ElementaryInstruction inst12 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.GREATER_EQUALS)
+			.setLeftOperand(CallInstructionHelper.createThisMethodCallInstruction("returnSomething"))
+			.setRightOperand(CallInstructionHelper.createThisMethodCallInstruction("returnSomethingElse")).build();
+// this.returnSomething() >= this.returnSomethingElse()
+----------
+
+You can replace calling instructions by any other *IElementary* instructions.
+
+[[Assignment]]
+=== Generating Assignment Instruction
+
+Assignment instruction with constant :
+
+----------
+Instruction inst1 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+			.setLeftVariableOperand("myVariable").setRightOperand(false).build();
+
+Instruction inst2 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+			.setLeftVariableOperand("myVariable").setRightOperand('r').build();
+
+Instruction inst3 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+			.setLeftVariableOperand("myVariable").setRightOperand("foobar").build();
+
+Instruction inst4 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+			.setLeftVariableOperand("myVariable").setRightOperand(42).build();
 ----------
 
 Generating code :
 
 ----------
+myVariable = false;
 
+myVariable = 'r';
+
+myVariable = "foobar";
+
+myVariable = 42;
 ----------
 
-A more complex example with default behavior :
+Assignment instruction with field and array field :
 
 ----------
+Instruction inst5 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN).setLeftThisOperand()
+			.setRightThisOperand().build();
+				
+Instruction inst6 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.PLUS_ASSIGN)
+			.setLeftFieldOperand("myField").setRightFieldArrayOperand("myArrayField", 5, 5).build();
 
+Instruction inst7 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.MINUS_ASSIGN)
+			.setLeftFieldArrayOperand("myArrayField", 3, 2)
+			.setRightFieldArrayOperand("myOtherArrayField", "i", "j").build();
+
+Instruction inst8 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.TIMES_ASSIGN)
+			.setLeftFieldArrayOperand("myArrayField", "i", "j").setRightFieldOperand("myField").build();
 ----------
 
 Generating code :
 
 ----------
+this = this;
+
+this.myField += this.myArrayField[5][5];
+
+this.myArrayField[3][2] -= this.myOtherArrayField[i][j];
+
+this.myArrayField[i][j] *= this.myField;
+----------
+
+Assignment instruction with variable and array variable :
 
 ----------
+Instruction inst9 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.PLUS_ASSIGN)
+			.setLeftVariableOperand("myVariable").setRightVariableArrayOperand("myArrayVariable", 5, 5).build();
+
+Instruction inst10 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.MINUS_ASSIGN)
+			.setLeftVariableArrayOperand("myArrayVariable", 3, 2)
+			.setRightVariableArrayOperand("myOtherArrayVariable", "i", "j").build();
+
+Instruction inst11 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.TIMES_ASSIGN)
+			.setLeftVariableArrayOperand("myArrayVariable", "i", "j").setRightVariableOperand("myVariable").build();
+----------
+
+Generating code :
+
+----------
+myVariable += myArrayVariable[5][5];
+
+myArrayVariable[3][2] -= myOtherArrayVariable[i][j];
+
+myArrayVariable[i][j] *= myVariable;
+----------
+
+Assignment instruction in most general case :
+
+----------
+Instruction inst12 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.DIVIDE_ASSIGN)
+			.setLeftOperand(CallInstructionHelper.createThisMethodCallInstruction("getAssignableObject"))
+			.setRightOperand(CallInstructionHelper.createThisMethodCallInstruction("returnSomething")).build();
+----------
+
+Generating code :
+
+----------
+this.getAssignableObject() /= this.returnSomething();
+----------
+
+You can replace calling instructions by any other *IElementary* instructions.
+
+[[Assignment/Declaration]]
+==== Generating Assignment and Declaration Instruction
+
+----------
+Instruction inst13 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+			.setLeftVariableDeclarationOperand("int", "myVariable").setRightOperand(0).build();
+
+Instruction inst14 = AssignmentInstructionHelper.builder()
+			.setOperator(AssignmentKind.ASSIGN)
+			.setLeftVariableDeclarationOperand("List<Integer>", "myFinalList", true // final_state
+			).setRightOperand(CallInstructionHelper.createClassInstanciationInstruction("LinkedList<Integer"))
+			.build();
+----------
+
+Generating code :
+
+----------
+int myVariable = 0;
+
+List<Integer> myFinalList = new LinkedList<Intege>();
+----------
+
+[[Creation]]
+=== Generating Creation Instruction
+
+[[ArrayCreation]]
+==== Generating Array Creation Instruction
+
+Create a new array with an elements list : 
+
+----------
+
+ArrayInitializerInstruction inst1 = ArrayCreationHelper.createArray(1, 2, 3, 4, 5, 6);
+// {1, 2, 3, 4, 5, 6}
+
+ArrayInitializerInstruction inst2 = ArrayCreationHelper.createArray(
+			ElementaryInstructionHelper.createInstruction("foo"),
+			ElementaryInstructionHelper.createInstruction("bar"),
+			ElementaryInstructionHelper.createInstruction("foobar"));
+// {"foo", "bar", "foobar"}
+----------
+
+You can replace calling instructions by any other *IElementary* instructions.
+
+Create a new array with type and dimensions :
+
+----------
+ElementaryInstruction inst3 = ArrayCreationHelper.builder("int").addDimensions(5, 2).build();
+// new int[5][2]
+
+ElementaryInstruction inst4 = ArrayCreationHelper.builder("Object").addFieldDimensions("myDimField","myDimField2")
+			.addVariableDimensions("myDimVariable","myDimVariable2").build();
+// new Object[this.myDimField][this.myDimField2][myDimVariable][myDimVariable2]
+
+ElementaryInstruction inst5 = ArrayCreationHelper.builder("List<Object>")
+			.addDimensions(CallInstructionHelper.createThisMethodCallInstruction("getDimension")).build();
+// new List<Object>[this.getDimension()]
+----------
+
+You can replace calling instruction by any other *IElementary* instructions.
+
+[[ClassCreation]]
+==== Generating Class Instantiation Instruction
+
+----------
+AbstractMethodInstruction inst1 = CallInstructionHelper.createClassInstanciationInstruction("List<Integer>");
+		
+AbstractMethodInstruction inst2 = CallInstructionHelper.createClassInstanciationInstruction("Integer").addArgument("5");
+----------
+
+Generating code :
+
+----------
+new List<Integer>();
+
+new Integer("5");
+----------
+
+See more about argument in the section <<Argument>>
+
+[[MethodCall]]
+=== Generating Method Call Instruction
+
+Method call on the current object, a field or a variable :
+
+----------
+AbstractMethodInstruction inst1 = CallInstructionHelper.createThisMethodCallInstruction("currentObjectMethod");
+
+AbstractMethodInstruction inst2 = CallInstructionHelper.createFieldMethodCallInstruction("myField",
+			"fieldMethod");
+			
+AbstractMethodInstruction inst3 = CallInstructionHelper.createVariableMethodCallInstruction("myVar",
+			"variableMethod");
+----------
+
+Generating code :
+
+----------
+this.currentObjectMethod();
+
+this.myField.fieldMethod();
+
+myVar.variableMethod();
+----------
+
+Super constructor or super method :
+
+----------
+AbstractMethodInstruction inst4 = CallInstructionHelper.createSuperConstructorCallInstruction();
+
+AbstractMethodInstruction inst5 = CallInstructionHelper.createSuperMethodCallInstruction("superMethod");
+----------
+
+Generating code :
+
+----------
+super();
+
+super.superMethod();
+----------
+
+Static method :
+
+----------
+AbstractMethodInstruction inst6 = CallInstructionHelper.createStaticMethodCallInstruction("MyClass",
+			"staticMethod");
+----------
+
+Generating code :
+
+----------
+MyClass.staticMethod();
+----------
+
+Chaining method call :
+
+----------
+AbstractMethodInstruction inst7 = CallInstructionHelper.createCallMethodInstruction(
+			CallInstructionHelper.createCallMethodInstruction(
+				CallInstructionHelper.createThisMethodCallInstruction("firstMethod"), "secondMethod"),
+			"thirdMethod");
+----------
+
+Generating code :
+
+----------
+this.firstMethod().secondMethod().thirdMethod();
+----------
+
+You can replace the original caller by any other *IElementary* instructions.
+
+[[Argument]]
+=== Add Argument To Generated Method
+
+Add constant argument :
+
+----------
+AbstractMethodInstruction inst1 = CallInstructionHelper
+			.createFieldMethodCallInstruction("myField", "someMethod").addArgument(42).addArgument("a string")
+			.addArgument("false");
+
+AbstractMethodInstruction inst2 = CallInstructionHelper
+			.createVariableMethodCallInstruction("myVariable", "someMethod").addArgument('c').addNullArgument();
+----------
+
+Generating code :
+
+----------
+this.myField.someMethod(42, "a string", "false");
+
+myVariable.someMethod('c', null);
+----------
+
+Add current object, field or variable as argument :
+
+----------
+AbstractMethodInstruction inst3 = CallInstructionHelper.createThisMethodCallInstruction("someMethod")
+			.addFieldArgument("myField").addVariableArgument("myVar").addThisArgument();
+----------
+
+
+Generating code :
+
+----------
+this.someMethod(this.myField, myVar, this);
+----------
+
+Add complex argument :
+
+----------
+AbstractMethodInstruction inst4 = CallInstructionHelper.createStaticMethodCallInstruction("MyClass",
+			"someMethod").addArgument(CallInstructionHelper.createThisMethodCallInstruction("otherMethod"));
+----------
+
+
+Generating code :
+
+----------
+MyClass.someMethod(this.otherMethod());
+----------
+
+You can replace the argument in complex example by any other *IElementary* instructions.
 
 
 
