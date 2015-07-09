@@ -9,7 +9,7 @@
 
 == Purpose
 
-We present in this page how to write transformation with the fluent API, available since Optimus 1.2.
+We present in this page how to write transformation with the fluent API, available since Optimus 1.2, in the plugin *net.atos.optimus.m2m.javaxmi.operation*.
 This API propose a high level abstraction of the Java Abstract Syntax Tree used by modisco. 
 So, the API enable to manipulate concept of the Java language by encapsulate AST object, accessible by the *getDelegate()* method.
 
@@ -38,6 +38,7 @@ We can generate the following concept of the Java language :
 * <<Instruction>>
 ** <<Constant>>
 ** <<Field/Variable>>
+*** <<VarDecl>>
 ** <<Array>>
 ** <<Operation>>
 *** <<Prefix>>
@@ -50,6 +51,18 @@ We can generate the following concept of the Java language :
 *** <<ClassCreation>>
 ** <<MethodCall>>
 ** <<Argument>>
+** <<Return>>
+** <<Control>>
+*** <<If>>
+*** <<Switch>>
+*** <<While>>
+*** <<ForLoop>>
+*** <<ForIterable>>
+*** <<Try/Catch>>
+** <<OtherInst>>
+*** <<Parenthesis>>
+*** <<InstanceOf>>
+*** <<Cast>>
 
 [[Package]]
 == Generating Package
@@ -583,12 +596,46 @@ ElementaryInstructionHelper.createNullInstruction(); // null
 ----------
 
 [[Field/Variable]]
-=== Generating Field, Variable Instruction
+=== Generating This, Field, Variable Instruction
+
+Generating the this keyword :
 
 ----------
 ElementaryInstructionHelper.createThisInstruction(); // this (access to current object)
+----------
+
+Generating an access to a variable :
+
+----------
 ElementaryInstructionHelper.createVariableInstruction("myVar"); // myVar (access to a variable)
+----------
+
+Generating an access to a field :
+
+----------
 ElementaryInstructionHelper.createFieldInstruction("myField"); // this.myField (access to a field)
+----------
+
+[[VarDecl]]
+==== Generating Variable Declaration
+
+----------
+ComplexInstruction inst1 = VariableDeclarationHelper.builder("int", "myVariable").build();
+
+ComplexInstruction inst2 = VariableDeclarationHelper.builder("List<Object>", "myList").setFinal(true).build();
+
+ComplexInstruction inst3 = VariableDeclarationHelper.builder("String", "aString")
+			.addVariable("anotherString", "aStringAgain").build();
+----------
+
+Generating code :
+
+----------
+int myVariable;
+
+final List<Object> myList;
+
+String aString, anotherString, aStringAgain;
 ----------
 
 [[Array]]
@@ -633,22 +680,22 @@ You can replace the calling instruction by any other *IElementary* instruction.
 Prefix operation with boolean constant :
 
 ----------
-ElementaryInstruction inst1 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.NOT).setOperand(true).build();
+Instruction inst1 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.NOT).setOperand(true).build();
 // !true
 ----------
 
 Prefix operation with field and array field :
 
 ----------
-ElementaryInstruction inst2 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT).setFieldOperand("myField")
+Instruction inst2 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT).setFieldOperand("myField")
 			.build();
 // ++this.myField
 
-ElementaryInstruction inst3 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
+Instruction inst3 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
 			.setFieldArrayOperand("myArrayField", 3, 2).build();
 // --this.myArrayField[3][2]
 
-ElementaryInstruction inst4 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
+Instruction inst4 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
 			.setFieldArrayOperand("myArrayField", "i", "j").build();
 // --this.myArrayField[i][j]
 ----------
@@ -656,15 +703,15 @@ ElementaryInstruction inst4 = PrefixOperationHelper.builder().setOperator(Prefix
 Prefix operation with variable and array variable :
 
 ----------
-ElementaryInstruction inst5 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
+Instruction inst5 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
 			.setVariableOperand("myVariable").build();
 // --myVariable
 
-ElementaryInstruction inst6 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT)
+Instruction inst6 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT)
 			.setVariableArrayOperand("myArrayVariable", 3, 2).build();
 // ++myArrayVariable[3][2]
 
-ElementaryInstruction inst7 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT)
+Instruction inst7 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT)
 	 		.setVariableArrayOperand("myArrayVariable", "i", "j").build();
 // ++myArrayVariable[i][j]
 ----------
@@ -672,7 +719,7 @@ ElementaryInstruction inst7 = PrefixOperationHelper.builder().setOperator(Prefix
 Prefix operation in most general case :
 
 ----------
-ElementaryInstruction inst8 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.NOT)
+Instruction inst8 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.NOT)
 			.setOperand(CallInstructionHelper.createThisMethodCallInstruction("isSomething")).build();
 // !this.isSomething()
 ----------
@@ -685,15 +732,15 @@ You can replace the calling instruction by any other *IElementary* instruction.
 Postfix operation with field and array field :
 
 ----------
-ElementaryInstruction inst1 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT).setFieldOperand("myField")
+Instruction inst1 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT).setFieldOperand("myField")
 				.build();
 // this.myField++
 
-ElementaryInstruction inst2 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+Instruction inst2 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
 				.setFieldArrayOperand("myArrayField", 3, 2).build();
 // this.myArrayField[3][2]--
 
-ElementaryInstruction inst3 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+Instruction inst3 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
 				.setFieldArrayOperand("myArrayField", "i", "j").build();
 // this.myArrayField[i][j]--
 ----------
@@ -701,15 +748,15 @@ ElementaryInstruction inst3 = PostfixOperationHelper.builder().setOperator(Postf
 Postfix operation with variable and array variable :
 
 ----------
-ElementaryInstruction inst4 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+Instruction inst4 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
 				.setVariableOperand("myVariable").build();
 // myVariable--
 
-ElementaryInstruction inst5 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+Instruction inst5 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
 				.setVariableArrayOperand("myArrayVariable", 3, 2).build();
 // myArrayVariable[3][2]++
 
-ElementaryInstruction inst6 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+Instruction inst6 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
 				.setVariableArrayOperand("myArrayVariable", "i", "j").build();
 // myArrayVariable[i][j]++
 ----------
@@ -717,7 +764,7 @@ ElementaryInstruction inst6 = PostfixOperationHelper.builder().setOperator(Postf
 Postfix operation in most general case :
 
 ----------
-ElementaryInstruction inst7 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+Instruction inst7 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
 			.setOperand(CallInstructionHelper.createThisMethodCallInstruction("getIncrementableObject")).build();
 // this.getIncrementableObject()++
 ----------
@@ -897,7 +944,7 @@ this.getAssignableObject() /= this.returnSomething();
 You can replace calling instructions by any other *IElementary* instructions.
 
 [[Assignment/Declaration]]
-==== Generating Assignment and Declaration Instruction
+==== Generating Variable Declaration with Assignment
 
 ----------
 Instruction inst13 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
@@ -1099,10 +1146,450 @@ MyClass.someMethod(this.otherMethod());
 
 You can replace the argument in complex example by any other *IElementary* instructions.
 
+[[Return]]
+=== Generating Return Instruction
 
+We have two ways to create return instruction
 
+==== With the dedicated helper : 
 
+Constant Return Instruction :
 
+----------
+ComplexInstruction inst1 = ReturnInstructionHelper.createEmptyReturnInstruction();
+
+ComplexInstruction inst2 = ReturnInstructionHelper.createNullReturnInstruction();
+
+ComplexInstruction inst3 = ReturnInstructionHelper.createReturnInstruction(true);
+
+ComplexInstruction inst4 = ReturnInstructionHelper.createReturnInstruction(12);
+
+ComplexInstruction inst5 = ReturnInstructionHelper.createReturnInstruction('t');
+
+ComplexInstruction inst6 = ReturnInstructionHelper.createReturnInstruction("foo");
+----------
+
+Generating code :
+
+----------
+return;
+
+return null;
+
+return true;
+
+return 12;
+
+return 't';
+
+return "foo";
+----------
+
+This, Field, Variable Return Instruction :
+
+----------
+ComplexInstruction inst7 = ReturnInstructionHelper.createThisReturnInstruction();
+
+ComplexInstruction inst8 = ReturnInstructionHelper.createVariableReturnInstruction("myVar");
+
+ComplexInstruction inst9 = ReturnInstructionHelper.createFieldReturnInstruction("myField");
+----------
+
+Generating code :
+
+----------
+return this;
+
+return myVar;
+
+return this.myField;
+----------
+
+==== With any created IElementaryInstruction instruction
+
+----------
+AbstractMethodInstruction inst10 = CallInstructionHelper.createFieldMethodCallInstruction("myField",
+			"fieldMethod");
+ComplexInstruction inst11 = inst10.convertToReturnInstruction();
+----------
+
+Generating code :
+
+----------
+return this.myField.fieldMethod();
+----------
+
+[[Control]]
+=== Generating Control Flow Instruction
+
+[[If]]
+==== Generating If Statement
+
+----------
+ComplexInstruction inst1 = IfInstructionHelper
+			.builder(
+					InfixOperationHelper.builder().setOperator(InfixExpressionKind.GREATER_EQUALS)
+							.setLeftVariableOperand("myInt").setRightOperand(5).build()// if_condition
+					,
+					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+							.setVariableOperand("myInt").build() // then_first_instruction
+					, ReturnInstructionHelper.createVariableReturnInstruction("myInt") // then_second_instruction
+			)
+			.addElseBlockInstruction(
+					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+							.setVariableOperand("myInt").build() // else_instruction
+			).build();
+----------
+
+Generating code : 
+			
+----------
+if (myInt >= 5) {
+	myInt--;
+	return myInt;
+} else {
+	myInt++;
+}
+----------
+
+[[Switch]]
+==== Generating Switch Statement
+
+Switch on a variable :
+
+----------
+ComplexInstruction inst1 = SwitchInstructionHelper
+			.builderOnVariable("myVar")
+			.addCaseBlock(2,
+					true, // with_break
+					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+							.setVariableOperand("myVar").build())
+			.addFinalCaseBlock(
+					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+							.setVariableOperand("myVar").build(),
+					ReturnInstructionHelper.createVariableReturnInstruction("myVar")); // final_case
+----------
+
+Generating code : 
+			
+----------
+switch (myVar) {
+	case 2:
+		myVar++;
+		break;
+	default:
+		myVar--;
+		return myVar;
+}
+----------
+We doesn't need to call the *build()* method because the final case is necessary the last clause of the switch.
+
+Switch on a field :
+
+----------
+ComplexInstruction inst2 = SwitchInstructionHelper
+			.builderOnField("myField")
+			.addCaseBlock('t', true) // with_break
+			.addCaseVariableBlock("otherVariable", true,
+					ReturnInstructionHelper.createVariableReturnInstruction("myField"))
+			.addCaseBlock(CallInstructionHelper.createFieldMethodCallInstruction("otherField", "aMethod"), false, // no_break
+					ReturnInstructionHelper.createThisReturnInstruction()).build();
+----------
+
+Generating code : 
+			
+----------
+switch (this.myField) {
+	case 't':
+		break;
+	case otherVariable:
+		return myField;
+		break;
+	case this.otherField.aMethod():
+		return this;
+}
+----------
+
+Switch on any *IElementaryInstruction* instruction :
+
+----------
+ComplexInstruction inst3 = SwitchInstructionHelper
+			.builder(CallInstructionHelper.createFieldMethodCallInstruction("myField", "fieldMethod"))
+			.addCaseNullBlock(true, // with_break
+					ReturnInstructionHelper.createNullReturnInstruction())
+			.addFinalCaseBlock(ReturnInstructionHelper.createThisReturnInstruction());
+----------
+
+Generating code : 
+			
+----------
+switch (this.myField.fieldMethod()) {
+	case null:
+		return null;
+		break;
+	default:
+		return this;
+}
+----------
+
+[[While]]
+==== Generating While Statement
+
+Generating while statement :
+
+----------
+ComplexInstruction inst1 = DoWhileInstructionHelper.createWhileInstruction(
+			InfixOperationHelper.builder().setOperator(InfixExpressionKind.GREATER_EQUALS)
+					.setLeftVariableOperand("myInt").setRightOperand(5).build() // while_condition
+			,
+			PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+					.setVariableOperand("myInt").build(), // while_first_instruction
+			CallInstructionHelper.createThisMethodCallInstruction("aMethod") // while_second_instruction
+			);
+----------
+
+Generating code : 
+			
+----------
+while (myInt >= 5) {
+	myInt--;
+	this.aMethod();
+}
+----------
+
+Generating do statement :
+
+----------
+ComplexInstruction inst2 = DoWhileInstructionHelper.createDoInstruction(
+			InfixOperationHelper.builder().setOperator(InfixExpressionKind.LESS_EQUALS)
+					.setLeftVariableOperand("myInt").setRightOperand(10).build() // do_condition
+			,
+			PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+					.setVariableOperand("myInt").build(), // do_first_instruction
+			CallInstructionHelper.createThisMethodCallInstruction("aMethod") // do_second_instruction
+			);
+----------
+
+Generating code : 
+			
+----------
+do {
+	myInt++;
+	this.aMethod();
+} while (myInt <= 10);
+----------
+
+[[ForLoop]]
+==== Generating For Loop Statement
+
+----------
+ComplexInstruction inst1 = ForLoopInstructionHelper.createdForLoopInstruction(
+			AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+					.setLeftVariableDeclarationOperand("int", "i").setRightOperand(0).build(), // for_initializer
+			InfixOperationHelper.builder().setOperator(InfixExpressionKind.LESS).setLeftVariableOperand("i")
+					.setRightVariableOperand("myArray.length").build(), // for_condition
+			PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT).setVariableOperand("i")
+					.build(), // for_updater
+			AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+					.setLeftFieldArrayOperand("myArray", "i").setRightVariableOperand("myInt").build(), // for_first_instruction
+			PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+					.setVariableOperand("myInt") // for_second_instruction
+					.build());
+----------
+
+Or with builder :
+
+----------
+ComplexInstruction inst2 = ForLoopInstructionHelper
+			.builderIntLoop("i")
+			.initializeVariable(0)
+			.setLoopCondition(InfixExpressionKind.LESS,
+					ElementaryInstructionHelper.createVariableInstruction("myArray.length"))
+			.setLoopUpdate(PostfixExpressionKind.INCREMENT)
+			.addInstructions(
+					AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+							.setLeftFieldArrayOperand("myArray", "i").setRightVariableOperand("myInt").build(),
+					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+							.setVariableOperand("myInt").build()).build();
+----------
+
+Generating code :
+
+----------
+for (int i = 0 ; i<myArray.length ; i++){
+	this.myArray[i]=myInt;
+	myInt++;
+}
+----------
+
+Other for loop creation :
+
+----------
+ComplexInstruction inst3 = ForLoopInstructionHelper.builderIntLoop("i")
+			.setLoopCondition(InfixExpressionKind.LESS, 10).setLoopUpdate(AssignmentKind.PLUS_ASSIGN, 2).build();
+
+ComplexInstruction inst4 = ForLoopInstructionHelper.builderIntLoop("i").initializeVariableWithField("myField")
+			.setLoopVariableCondition(InfixExpressionKind.LESS, "myVariable")
+			.setLoopVariableUpdate(AssignmentKind.PLUS_ASSIGN, "otherVariable").build();
+
+ComplexInstruction inst5 = ForLoopInstructionHelper.builderIntLoop("i")
+			.initializeVariableWithOtherVariable("myVariable")
+			.setLoopFieldCondition(InfixExpressionKind.LESS, "myField")
+			.setLoopFieldUpdate(AssignmentKind.PLUS_ASSIGN, "otherField").build();
+
+ComplexInstruction inst6 = ForLoopInstructionHelper
+			.builderIntLoop("i")
+			.initializeVariable(CallInstructionHelper.createThisMethodCallInstruction("aMethod"))
+			.setLoopCondition(InfixExpressionKind.LESS,
+					CallInstructionHelper.createThisMethodCallInstruction("anOtherMethod"))
+			.setLoopUpdate(AssignmentKind.PLUS_ASSIGN,
+					CallInstructionHelper.createThisMethodCallInstruction("aMethodAgain")).build();
+----------
+
+Generating code : 
+			
+----------
+for (i ; i<10 ; i += 2){}
+
+for (int i = this.myField ; i < myVariable; i += otherVariable){}
+
+for (int i = myVariable ; i < this.myField ; i += this.otherField){}
+
+for (int i = this.aMethod() ; i < this.anOtherMethod() ; i+= this.aMethodAgain()){}
+----------
+
+You can replace the calling instruction by any other *IElementaryInstruction* instruction.
+
+[[ForIterable]]
+==== Generating For Iterable Statement
+
+For iterable with existing variable :
+
+----------
+ComplexInstruction inst1 = ForIterableInstructionHelper.builder("variable")
+			.setIterableFieldInstruction("myIterableField")
+			.addInstructions(CallInstructionHelper.createVariableMethodCallInstruction("variable", "aMethod"))
+			.build();
+----------
+
+Generating code : 
+			
+----------
+for (variable : this.myIterableField){
+	variable.aMethod();
+}
+----------
+
+For iterable with variable creation :
+
+----------
+ComplexInstruction inst2 = ForIterableInstructionHelper.builder("Object", "variable")
+			.setIterableVariableInstruction("myIterableVariable")
+			.addInstructions(CallInstructionHelper.createVariableMethodCallInstruction("variable", "aMethod"))
+			.build();
+----------
+
+Generating code : 
+			
+----------
+for (Object variable : myIterableVariable){
+	variable.aMethod();
+}
+----------
+
+A more general example :
+
+----------
+ComplexInstruction inst3 = ForIterableInstructionHelper.builder("Object", "variable")
+			.setIterableInstruction(CallInstructionHelper.createThisMethodCallInstruction("methodReturnIterable"))
+			.build();
+----------
+
+Generating code : 
+			
+----------
+for(Object variable : this.methodReturnIterable()){}
+----------
+
+You can replace the calling instruction by any other *IElementary* instruction.
+
+[[Try/Catch]]
+==== Generating Try/Catch Statement
+
+----------
+ComplexInstruction inst = TryCatchInstructionHelper
+			.builder(CallInstructionHelper.createThisMethodCallInstruction("aMethodThrowingException"))
+			.addTryBlockInstruction(
+					CallInstructionHelper.createThisMethodCallInstruction("anotherMethodThrowingException"))
+			.addCatchBlock("Exception1", "e1", CallInstructionHelper.createThisMethodCallInstruction("doSomething"))
+			.addCatchBlock("Exception2", "e2",
+					CallInstructionHelper.createThisMethodCallInstruction("doSomethingElse"),
+					CallInstructionHelper.createSuperMethodCallInstruction("superMethod"))
+			.addFinallyBlockInstruction(CallInstructionHelper.createThisMethodCallInstruction("doFinalThing"),
+					CallInstructionHelper.createSuperMethodCallInstruction("superMethod")).build();
+----------
+
+Generating code : 
+			
+----------
+try {
+	this.aMethodThrowingException();
+	this.anotherMethodThrowingException();
+} catch (Exception1 e1) {
+	this.doSomething();
+} catch (Exception2 e2) {
+	this.doSomethingElse();
+	super.superMethod();
+} finally {
+	this.doFinalThing();
+	super.superMethod();
+}
+----------
+
+You can replace the calling instruction by any other *IComplexInstruction* instruction.
+
+[[OtherInst]]
+=== Generating Other Instruction
+
+[[Parenthesis]]
+==== Generating Parenthesized Instruction
+
+On any *IElementaryInstruction*, you can add parenthesis :
+
+----------
+IElementaryInstruction inst = InfixOperationHelper.builder().setOperator(InfixExpressionKind.PLUS)
+			.setLeftOperand(5).setRightOperand(10).build();
+
+IElementaryInstruction inst1 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.TIMES)
+			.setLeftOperand(inst.withParentheses())
+			.setRightOperand(2).build();
+			
+// (5 + 10) * 2;
+----------
+
+[[InstanceOf]]
+==== Generating Instanceof Instruction
+
+You can convert any *IElementaryInstruction* to an instanceof instruction :
+
+----------
+IElementaryInstruction inst = CallInstructionHelper.createThisMethodCallInstruction("aMethod")
+			.convertToInstanceOfInstruction("MyType");
+			
+// this.aMethod() instanceof MyType
+----------
+
+[[Cast]]
+==== Generating Cast Instruction
+
+You can convert any *IElementaryInstruction* to a cast instruction :
+
+----------
+IElementaryInstruction inst = CallInstructionHelper.createThisMethodCallInstruction("aMethod")
+			.convertToCastInstruction("MyType");
+
+// (MyType) this.aMethod()
+----------
 
 
 
