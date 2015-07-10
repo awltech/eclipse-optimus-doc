@@ -35,6 +35,7 @@ We can generate the following concept of the Java language :
 ** <<Getter>>
 ** <<Setter>>
 ** <<Method>>
+*** <<Parameter>>
 * <<Instruction>>
 ** <<Constant>>
 ** <<Field/Variable>>
@@ -63,6 +64,12 @@ We can generate the following concept of the Java language :
 *** <<Parenthesis>>
 *** <<InstanceOf>>
 *** <<Cast>>
+* <<Javadoc>>
+* <<Comment>>
+* <<Annotation>>
+** <<AnnotationNoParam>>
+** <<AnnotationParam>>
+** <<AnnotationComplex>>
 
 [[Package]]
 == Generating Package
@@ -575,6 +582,47 @@ Generating code :
 
 ----------
 public <T extends Collection<?>> List<S> genericMethod(T[] arrayParam, Collection<Object>[] complexArrayParam);
+----------
+
+[[Parameter]]
+== Generating Custom Parameter
+
+A created parameter must be added to an abstract method via the *addParameters()* method in order to appear during the generation process.
+We can't reuse a parameter.
+
+----------
+Method createdMethod = MethodHelper.createMethod(createdClass, VisibilityKind.PUBLIC, false,
+			InheritanceKind.NONE, "int[]", "aMethod");
+Parameter createdParam = ParameterHelper.createParameter(false // final_state
+			, "int", "nbElements", false // varargs_state
+			);
+createdMethod.addParameters(createdParam);
+----------
+
+Or with builder :
+
+----------
+Parameter createdParam2 = ParameterHelper.builder("int").setFinal(false).setName("nbElements")
+			.setMethod(createdMethod).setVarargs(false).build();
+----------
+
+Generating code :
+
+----------
+public int[] aMethod(int nbElements);
+----------
+
+Another example with default behavior :
+
+----------
+Parameter defaultParam = ParameterHelper.builder("List<Integer>").build();
+createdMethod.addParameters(defaultParam);
+----------
+
+Generating code :
+
+----------
+public int[] aMethod(List<Integer> list);
 ----------
 
 [[Instruction]]
@@ -1591,5 +1639,240 @@ IElementaryInstruction inst = CallInstructionHelper.createThisMethodCallInstruct
 // (MyType) this.aMethod()
 ----------
 
+[[Javadoc]]
+== Add Javadoc To Generated Element
+
+You can attach a Javadoc to any generated element :
+
+----------
+Method method = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false
+			, InheritanceKind.NONE, "int[]", "aMethod").addParameter("int", "nbElement");
+
+method.addJavadoc(
+			"Create an integer array \n @param nbElement the number of elements in the created array \n @return the created array.",
+			false // no_empty_line
+);
+----------
+
+Generating code : 
+
+----------
+/**
+ * Create an integer array
+ * 
+ * @param nbElement
+ *            the number of elements in the created array
+ * @return the created array.
+ */
+public int[] aMethod(int nbElement);
+----------
+
+[[Comment]]
+== Add Comment To Generated Element
+
+You can attach a comment to any generated element :
+
+----------
+Method method = MethodHelper.createMethod(createdClass, VisibilityKind.PUBLIC, false, InheritanceKind.NONE,
+			"int[]", "aMethod").addParameter("int", "nbElement");
+ComplexInstruction inst = ReturnInstructionHelper.createNullReturnInstruction().addComment("TODO", true // prefix
+			);
+			
+method.addInstructions(inst);
+method.addComment("May add some other methods", false // suffix
+);
+----------
+
+Generating code :
+
+----------
+public int[] aMethod(int nbElement) {
+	// TODO
+	return null;
+}
+// May add some other methods
+----------
+
+[[Annotation]]
+== Add Annotation
+
+We can attach annotation on any *AbstractDeclaration* or *ArrayInitializerInstruction* or *Parameter*
+
+[[AnnotationNoParam]]
+=== Add Annotation Without Parameter
+
+An example with a method :
+
+----------
+Method createdMethod = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false,
+			InheritanceKind.NONE, "int[]", "aMethod");
+createdMethod.addAnnotation("my.javapackage.annotation", "anAnnotation");
+----------
+
+Generating code :
+
+----------
+import my.javapackage.annotation.anAnnotation;
+
+public interface myInterface {
+
+	@anAnnotation
+	public int[] aMethod();
+	
+}
+----------
+
+Create orphan annotation : 
+
+----------
+JavaAnnotation.createOrphanAnnotation("my.javapackage.orphan.annotation", "orphanAnnotation");
+----------
+
+[[AnnotationParam]]
+=== Add Annotation With Parameter
+
+We need to create the annotation and then add these parameters. 
+The creation process attach automatically the annotation to the *Element* on which we execute the *createAnnotation()* method.
+
+Annotation with simple parameter types :
+
+----------
+MethodHelper
+		.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
+		.createAnnotation("my.javapackage.annotation", "anAnnotation")
+		.addAnnotationParameter("booleanProperty", true).addAnnotationParameter("intProperty", 5)
+		.addAnnotationParameter("charProperty", 't');
+----------
+
+Generating code :
+
+----------
+import my.javapackage.annotation.anAnnotation;
+
+public interface MyInterface {
+	@anAnnotation(booleanProperty = true, intProperty = 5, charProperty = 't')
+	public int[] aMethod();
+}
+----------
+
+Annotation with Object parameter type, with escape :
+
+----------
+MethodHelper
+		.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
+		.createAnnotation("my.javapackage.annotation", "anotherAnnotation")
+		.addAnnotationParameter("property", createdInterface.getName(), true // escape_state
+		);
+----------
+
+Generating code :
+
+----------
+import my.javapackage.annotation.anotherAnnotation;
+
+public interface MyInterface {
+	@anotherAnnotation(property = "MyInterface")
+	public int[] aMethod();
+}
+----------
+
+Or without escape :
+
+----------
+MethodHelper
+		.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
+		.createAnnotation("my.javapackage.annotation", "anAnnotationAgain")
+		.addAnnotationParameter("property", createdInterface.getName(), false // escape_state
+		);
+----------
+
+Generating code :
+
+----------
+import my.javapackage.annotation.anAnnotationAgain;
+
+public interface MyInterface {
+
+	@anAnnotationAgain(property = MyInterface)
+	public int[] aMethod();
+	
+}
+----------
+
+We can add array parameter to an annotation :
+
+----------
+MethodHelper
+		.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
+		.createAnnotation("my.javapackage.annotation", "anAnnotationWithArrayParameter")
+		.addAnnotationParameter("arrayProperty", "aString", true)
+		.addAnnotationParameter("arrayProperty", "anotherString", true);
+----------
+
+Generating code :
+
+----------
+import my.javapackage.annotation.anAnnotationWithArrayParameter;
+
+public interface MyInterface {
+	
+	@anAnnotationWithArrayParameter(arrayProperty = { "aString",
+			"anotherString" })
+	public int[] aMethod();
+	
+}
+----------
+
+[[AnnotationComplex]]
+=== Complex Annotation Adding Process
+
+Assume that we want to add to a method, an annotation with other annotations as array parameter
+
+----------
+JavaAnnotation annotation = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false,
+			InheritanceKind.NONE, "int[]", "aMethod").createAnnotation("my.javapackage.annotation",
+			"complexAnnotation");
+	annotation.createAnnotation("my.javapackage.internal.annotation", "internalAnnotation", "arrayParameter");
+	annotation.createAnnotation("my.javapackage.internal.annotation", "otherInternalAnnotation", "arrayParameter")
+			.addAnnotationParameter("property", "foo", true);
+----------
+
+Generating code :
+
+----------
+import my.javapackage.annotation.complexAnnotation;
+import my.javapackage.internal.annotation.internalAnnotation;
+import my.javapackage.internal.annotation.otherInternalAnnotation;
+
+public interface MyInterface {
+
+@complexAnnotation(arrayParameter = { @internalAnnotation, @otherInternalAnnotation(property = "foo") })
+public int[] aMethod();
+
+}
+----------
+
+Assume that we want to add a parameter with annotation to a method
+
+----------
+Method createdMethod = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false,
+		InheritanceKind.NONE, "int[]", "aMethod");
+Parameter parameter = ParameterHelper.builder("int").setMethod(createdMethod).build()
+		.addAnnotation("my.javapackage.annotation", "anAnnotation");
+parameter.createAnnotation("my.javapackage.annotation", "anotherAnnotation").addAnnotationParameter("property", 5);
+----------
+
+Generating code :
+
+----------
+import my.javapackage.annotation.anAnnotation;
+import my.javapackage.annotation.anotherAnnotation;
+
+public interface MyInterface {
+
+	public int[] aMethod(@anAnnotation @anotherAnnotation(property = 5) int myInt);
+	
+}
+----------
 
 
