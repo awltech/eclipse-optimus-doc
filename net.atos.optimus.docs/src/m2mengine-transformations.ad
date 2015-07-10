@@ -70,6 +70,13 @@ We can generate the following concept of the Java language :
 ** <<AnnotationNoParam>>
 ** <<AnnotationParam>>
 ** <<AnnotationComplex>>
+* <<Advanced>>
+** <<Builder>>
+** <<TypeAccess>>
+** <<FieldAccess>>
+** <<VariableAccess>>
+** <<TypeParameter>>
+** <<SingleDeclarationExpression>>
 
 [[Package]]
 == Generating Package
@@ -91,16 +98,16 @@ We assume that we created the package above
 
 ----------
 JavaClass createdClass = ClassHelper.createClass(createdPackage, "MyClass", VisibilityKind.PUBLIC,
-				InheritanceKind.NONE, false // proxy_state
-				, "SuperClass", "MyImplementedInterface1", "MyImplementedInterface2");
+	InheritanceKind.NONE, false // proxy_state
+	, "SuperClass", "MyImplementedInterface1", "MyImplementedInterface2");
 ----------
 
 Or with builder :
 
 ----------
 JavaClass createdClass = ClassHelper.builder(createdPackage, "MyClass").setVisibility(VisibilityKind.PUBLIC)
-				.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
-				.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
+	.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
+	.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
 ----------
 
 Generating code :
@@ -108,8 +115,7 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public class MyClass extends SuperClass implements MyImplementedInterface1,
-		MyImplementedInterface2 {
+public class MyClass extends SuperClass implements MyImplementedInterface1, MyImplementedInterface2 {
 }
 ----------
 
@@ -117,7 +123,7 @@ A more complex example with default behavior :
 
 ----------
 JavaClass createdComplexClass = ClassHelper.builder(createdPackage, "MyComplexClass<T super Object>")
-				.setSuperClass("MySuperClass<T>").build();
+	.setSuperClass("MySuperClass<T>").build();
 ----------
 
 Generating code :
@@ -125,8 +131,7 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public class MyComplexClass<T extends Object> extends MySuperClass<T> {
-}
+public class MyComplexClass<T extends Object> extends MySuperClass<T> {}
 ----------
 
 ==== Generating internal class
@@ -135,15 +140,15 @@ We assume that we created the class above
 
 ----------
 JavaClass createdInternalClass = ClassHelper.createInternalClass(createdClass, "MyInternalClass", VisibilityKind.PUBLIC, InheritanceKind.NONE, false // proxy_state
-				, "SuperClass", "MyImplementedInterface1", "MyImplementedInterface2");
+	, "SuperClass", "MyImplementedInterface1", "MyImplementedInterface2");
 ----------
 
 Or with builder :
 
 ----------
 JavaClass createdInternalClass = ClassHelper.internalClassBuilder(createdClass, "MyInternalClass").setVisibility(VisibilityKind.PUBLIC)
-				.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
-				.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
+	.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
+	.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
 ----------
 
 Generating code :
@@ -151,14 +156,14 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public class MyClass extends SuperClass implements MyImplementedInterface1,
-		MyImplementedInterface2 {
+public class MyClass extends SuperClass implements MyImplementedInterface1, MyImplementedInterface2 {
+	
 	public class MyInternalClass extends SuperClass implements
 			MyImplementedInterface1, MyImplementedInterface2 {
 	}
+	
 }
 ----------
-
 
 [[Interface]]
 === Generating Interface
@@ -167,17 +172,17 @@ We assume that we created the package above
 
 ----------
 Interface createdInterface = InterfaceHelper.createInterface(createdPackage, "MyInterface",
-				VisibilityKind.PUBLIC, false // abstract_state
-				, InheritanceKind.NONE, false // proxy_state
-				, "MySuperInterface1", "MySuperInterface2");
+	VisibilityKind.PUBLIC, false // abstract_state
+	, InheritanceKind.NONE, false // proxy_state
+	, "MySuperInterface1", "MySuperInterface2");
 ----------
 
 Or with builder :
 
 ----------
 Interface createdInterface = createdInterface = InterfaceHelper.builder(createdPackage, "MyInterface").setVisibility(VisibilityKind.PUBLIC)
-				.setAbstract(false).setProxy(false).setInheritance(InheritanceKind.NONE)
-				.addInterfaces("MySuperInterface1", "MySuperInterface2").build();
+	.setAbstract(false).setProxy(false).setInheritance(InheritanceKind.NONE)
+	.addInterfaces("MySuperInterface1", "MySuperInterface2").build();
 ----------
 
 Generating code :
@@ -185,16 +190,15 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public interface MyInterface extends MySuperInterface1, MySuperInterface2 {
-}
+public interface MyInterface extends MySuperInterface1, MySuperInterface2 {}
 ----------
 
 A more complex example with default behavior :
 
 ----------
 Interface createdComplexInterface = InterfaceHelper
-				.builder(createdPackage, "MyComplexInterface<T extends Object>")
-				.addInterfaces("SuperParametricInterface<Integer>").build();
+	.builder(createdPackage, "MyComplexInterface<T extends Object>")
+	.addInterfaces("SuperParametricInterface<Integer>").build();
 ----------
 
 Generating code :
@@ -202,9 +206,7 @@ Generating code :
 ----------
 package my.generated.javapackage;
 
-public interface MyComplexInterface<T extends Object> extends
-		SuperParametricInterface<Integer> {
-}
+public interface MyComplexInterface<T extends Object> extends SuperParametricInterface<Integer> {}
 ----------
 
 [[Enumeration]]
@@ -214,14 +216,14 @@ We assume that we created the package above
 
 ----------
 JavaEnum createdEnum = EnumHelper.createEnum(createdPackage, "myEnum", false // proxy_state
-				, "MyImplementedInterface1", "MyImplementedInterface2").addEnumConstant("MyConstant");
+	, "MyImplementedInterface1", "MyImplementedInterface2").addEnumConstant("MyConstant");
 ----------
 
 Or with builder :
 
 ----------
 createdEnum = EnumHelper.builder(createdPackage, "myEnum").setProxy(false)
-				.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").addEnumConstant("MyConstant").build();
+	.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").addEnumConstant("MyConstant").build();
 ----------
 
 Generating code :
@@ -232,7 +234,9 @@ package my.generated.javapackage;
 import java.util.List;
 
 public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {
+
 	MyConstant();
+	
 }
 ----------
 
@@ -243,7 +247,7 @@ A more complex example with default behavior :
 
 ----------
 JavaEnum createdComplexEnum = EnumHelper.builder(createdPackage, "myDefaultEnum").addEnumConstant("MyFirstConstant")
-				.addEnumConstant("MySecondConstant").addEnumConstant("MyThirdConstant").build();
+	.addEnumConstant("MySecondConstant").addEnumConstant("MyThirdConstant").build();
 ----------
 
 Generating code :
@@ -252,7 +256,9 @@ Generating code :
 package my.generated.javapackage;
 
 public enum myDefaultEnum {
+
 	MyFirstConstant(), MySecondConstant(), MyThirdConstant();
+	
 }
 ----------
 
@@ -263,13 +269,13 @@ We assume that we created classes, interfaces and enumerations above. You can ad
 
 ----------
 JavaClass anotherClass = ClassHelper.builder(createdPackage, "AnotherClass").addImports("java.util.List")
-				.addStaticImports("java.util.Collections.*").build();
+	.addStaticImports("java.util.Collections.*").build();
 
 Interface anotherInterface = InterfaceHelper.builder(createdPackage, "AnotherInterface")
-				.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
+	.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
 
 JavaEnum anotherEnum = EnumHelper.builder(createdPackage, "AnotherEnum")
-				.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
+	.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
 ----------
 
 Or after :
@@ -291,9 +297,7 @@ package my.generated.javapackage;
 import java.util.List;
 import java.util.Collections.*;
 
-public class MyClass extends SuperClass implements MyImplementedInterface1,
-		MyImplementedInterface2 {
-}
+public class MyClass extends SuperClass implements MyImplementedInterface1, MyImplementedInterface2 {}
 
 // Interface
 package my.generated.javapackage;
@@ -302,8 +306,7 @@ import java.util.*;
 import java.lang.*;
 import java.util.Collections.*;
 
-public interface MyInterface extends MySuperInterface1, MySuperInterface2 {
-}
+public interface MyInterface extends MySuperInterface1, MySuperInterface2 {}
 
 // Enum
 package my.generated.javapackage;
@@ -312,8 +315,7 @@ import java.util.*;
 import java.lang.*;
 import java.util.Collections.*;
 
-public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {
-}
+public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {}
 ----------
 
 [[Field]]
@@ -323,16 +325,15 @@ We assume that we created classes and enumerations above.
 
 ----------
 Field createdField = FieldHelper.createField(createdClass, VisibilityKind.PRIVATE, false // static_state
-				, false // final_state
-				, "MyFieldType", "myField");
-
+	, false // final_state
+	, "MyFieldType", "myField");
 ----------
 
 Or with builder :
 
 ----------
 Field createdAnotherField = FieldHelper.builder(createdClass, "int").setVisibility(VisibilityKind.PRIVATE)
-				.setStatic(false).setFinal(false).setName("myOtherField").build();
+	.setStatic(false).setFinal(false).setName("myOtherField").build();
 ----------
 
 Generating code :
@@ -368,15 +369,17 @@ We assume that we created classes, enumerations and fields above.
 
 ----------
 Constructor createdConstructor = ConstructorHelper.createConstructor(createdClass, VisibilityKind.PUBLIC,
-				createdField, createdAnotherField); // Added parameter with auto-generated name and set specified fields
+	createdField, createdAnotherField); // Added parameter with auto-generated name and set specified fields
 ----------
 
 Generating code :
 
 ----------
 public MyClass(MyFieldType myFieldType, int myInt) {
+
 	this.myField = myFieldType;
 	this.myOtherField = myInt;
+	
 }
 ----------
 
@@ -384,18 +387,19 @@ Or with builder :
 
 ----------
 Constructor createdConstructor = ConstructorHelper.builder(createdEnum).setVisibility(VisibilityKind.PUBLIC)
-				.addParameterAndSetAssociatedFields(createdField, createdAnotherField) // Added parameter with auto-generated name and set specified fields
-				.addExceptions("Exception1","Exception2") // Added exceptions in the builder
-				.build();
+	.addParameterAndSetAssociatedFields(createdField, createdAnotherField) // Added parameter with auto-generated name and set specified fields
+	.addExceptions("Exception1","Exception2") // Added exceptions in the builder
+	.build();
 ----------
 
 Generating code :
 
 ----------
-public myEnum(MyFieldType myFieldType, int myInt) throws Exception1,
-			Exception2 {
-		this.myField = myFieldType;
-		this.myOtherField = myInt;
+public myEnum(MyFieldType myFieldType, int myInt) throws Exception1, Exception2 {
+
+	this.myField = myFieldType;
+	this.myOtherField = myInt;
+	
 }
 ----------
 
@@ -403,17 +407,17 @@ We have additional ways to add parameters
 
 ----------
 Constructor createdAnotherConstructor = ConstructorHelper.builder(createdClass)
-				.addParameter("int", "parameter").addParameter("List<Integer>", "parameter2") // Added parameter with specified type and name, no field setting
-				.build();
+	.addParameter("int", "parameter").addParameter("List<Integer>", "parameter2") // Added parameter with specified type and name, no field setting
+	.build();
 
 Constructor createdAnotherConstructor2 = ConstructorHelper.builder(createdClass)
-				.addParameterAndSetAssociatedField("param1", createdField) // Added parameter with specified name and set specified field
-				.addParameterAndSetAssociatedField("param2", createdAnotherField) // Added parameter with specified name and set specified field
-				.build();
+	.addParameterAndSetAssociatedField("param1", createdField) // Added parameter with specified name and set specified field
+	.addParameterAndSetAssociatedField("param2", createdAnotherField) // Added parameter with specified name and set specified field
+	.build();
 
 Constructor createdAnotherConstructor3 = ConstructorHelper.builder(createdClass) 
-				.addParameters("int", "List<Integer>") // Added parameter with generated name, no field setting
-				.build();
+	.addParameters("int", "List<Integer>") // Added parameter with generated name, no field setting
+	.build();
 ----------
 
 Generating code :
@@ -422,8 +426,10 @@ Generating code :
 public MyClass(int parameter, List<Integer> parameter2);
 
 public MyClass(MyFieldType param1, int param2){
+
 	this.myField=param1;
 	this.myOtherField=param2;
+	
 }
 
 public MyClass(int myInt, List<Integer> list);
@@ -440,21 +446,23 @@ We assume that we created classes and fields above.
 
 ----------
 Method getter = GetterHelper.createGetter(createdClass, VisibilityKind.PUBLIC, false // final_state
-				, createdField, "getField");
+	, createdField, "getField");
 ----------
 
 Or with builder :
 
 ----------
 Method getter = GetterHelper.builder(createdEnum, createdField).setVisibility(VisibilityKind.PUBLIC).setFinal(false)
-				.setName("getField").build();
+	.setName("getField").build();
 ----------
 
 Generating code :
 
 ----------
 public MyFieldType getField() {
+
 	return this.myField;
+	
 }
 ----------
 
@@ -468,7 +476,9 @@ Generating code :
 
 ----------
 public MyFieldType getMyField() {
+
 	return this.myField;
+
 }
 ----------
 
@@ -479,21 +489,23 @@ We assume that we created classes, enumerations and fields above.
 
 ----------
 Method setter = SetterHelper.createSetter(createdClass, VisibilityKind.PUBLIC, false // final_state
-				, createdAnotherField, "setField", "parameter");
+	, createdAnotherField, "setField", "parameter");
 ----------
 
 Or with builder :
 
 ----------
 Method setter = SetterHelper.builder(createdClass, createdAnotherField).setVisibility(VisibilityKind.PUBLIC)
-				.setFinal(false).setName("setField").setParameterName("parameter").build();
+	.setFinal(false).setName("setField").setParameterName("parameter").build();
 ----------
 
 Generating code :
 
 ----------
 public void setField(int parameter) {
+
 	this.myOtherField = parameter;
+	
 }
 ----------
 
@@ -507,7 +519,9 @@ Generating code :
 
 ----------
 public void setMyOtherField(int myInt) {
+
 	this.myOtherField = myInt;
+	
 }
 ----------
 
@@ -518,15 +532,15 @@ We assume that we created classes, interfaces and enumerations above. We can add
 
 ----------
 Method method = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false // static_state
-				, InheritanceKind.NONE, "int[]", "aMethod", "Exception1", "Exception2");
+	, InheritanceKind.NONE, "int[]", "aMethod", "Exception1", "Exception2");
 ----------
 
 Or with builder :
 
 ----------
 Method method = MethodHelper.builder(createdClass, "aMethod").setVisibility(VisibilityKind.PUBLIC)
-				.setStatic(false).setInheritance(InheritanceKind.NONE).setReturnType("int[]")
-				.addExceptions("Exception1", "Exception2").build();
+	.setStatic(false).setInheritance(InheritanceKind.NONE).setReturnType("int[]")
+	.addExceptions("Exception1", "Exception2").build();
 ----------
 
 Generating code :
@@ -539,11 +553,11 @@ We have additional ways to add parameters
 
 ----------
 Method createdAnotherMethod = MethodHelper.builder(createdEnum, "anotherMethod")
-				.addParameter("int", "parameter").addParameter("List<Integer>", "parameter2").build();
+	.addParameter("int", "parameter").addParameter("List<Integer>", "parameter2").build();
 
 Method createdAnotherMethod2 = MethodHelper.builder(createdClass, "anotherMethod2")
-				.addParameters("int", "List<Integer>")
-				.build();
+	.addParameters("int", "List<Integer>")
+	.build();
 ----------
 
 Generating code :
@@ -574,14 +588,14 @@ Another complex example, generic method and array parameters  :
 
 ----------
 Method genericMethod = MethodHelper.builder(createdClass, "genericMethod")
-				.setReturnType("<T super Collection<?>> List<S>").addParameter("T[]", "arrayParam")
-				.addParameter("Collection<Object>[]", "complexArrayParam").build();
+	.setReturnType("<T super Collection<?>> List<S>").addParameter("T[]", "arrayParam")
+	.addParameter("Collection<Object>[]", "complexArrayParam").build();
 ----------
 
 Generating code :
 
 ----------
-public <T extends Collection<?>> List<S> genericMethod(T[] arrayParam, Collection<Object>[] complexArrayParam);
+public <T super Collection<?>> List<S> genericMethod(T[] arrayParam, Collection<Object>[] complexArrayParam);
 ----------
 
 [[Parameter]]
@@ -592,10 +606,10 @@ We can't reuse a parameter.
 
 ----------
 Method createdMethod = MethodHelper.createMethod(createdClass, VisibilityKind.PUBLIC, false,
-			InheritanceKind.NONE, "int[]", "aMethod");
+	InheritanceKind.NONE, "int[]", "aMethod");
 Parameter createdParam = ParameterHelper.createParameter(false // final_state
-			, "int", "nbElements", false // varargs_state
-			);
+	, "int", "nbElements", false // varargs_state
+	);
 createdMethod.addParameters(createdParam);
 ----------
 
@@ -603,7 +617,7 @@ Or with builder :
 
 ----------
 Parameter createdParam2 = ParameterHelper.builder("int").setFinal(false).setName("nbElements")
-			.setMethod(createdMethod).setVarargs(false).build();
+	.setMethod(createdMethod).setVarargs(false).build();
 ----------
 
 Generating code :
@@ -673,7 +687,7 @@ ComplexInstruction inst1 = VariableDeclarationHelper.builder("int", "myVariable"
 ComplexInstruction inst2 = VariableDeclarationHelper.builder("List<Object>", "myList").setFinal(true).build();
 
 ComplexInstruction inst3 = VariableDeclarationHelper.builder("String", "aString")
-			.addVariable("anotherString", "aStringAgain").build();
+	.addVariable("anotherString", "aStringAgain").build();
 ----------
 
 Generating code :
@@ -701,8 +715,8 @@ Access to an index holding by fields and variables in a variable array :
 
 ----------
 ArrayInstructionHelper.builderWithVariable("myArrayVariable")
-			.addFieldIndex("fieldIndex", "fieldIndex2").addVariableIndex("variableIndex1", "variableIndex2")
-			.build();
+	.addFieldIndex("fieldIndex", "fieldIndex2").addVariableIndex("variableIndex1", "variableIndex2")
+	.build();
 
 // myArrayVariable[this.fieldIndex][this.fieldIndex2][variableIndex1][variableIndex2]
 ----------
@@ -711,8 +725,8 @@ Access to an index giving by a method return in a array returning by another met
 
 ----------
 ArrayInstructionHelper
-			.builder(CallInstructionHelper.createThisMethodCallInstruction("getArray"))
-			.addIndex(CallInstructionHelper.createThisMethodCallInstruction("getIndex")).build();
+	.builder(CallInstructionHelper.createThisMethodCallInstruction("getArray"))
+	.addIndex(CallInstructionHelper.createThisMethodCallInstruction("getIndex")).build();
 				
 // this.getArray()[this.getIndex()]
 ----------
@@ -736,15 +750,15 @@ Prefix operation with field and array field :
 
 ----------
 Instruction inst2 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT).setFieldOperand("myField")
-			.build();
+	.build();
 // ++this.myField
 
 Instruction inst3 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
-			.setFieldArrayOperand("myArrayField", 3, 2).build();
+	.setFieldArrayOperand("myArrayField", 3, 2).build();
 // --this.myArrayField[3][2]
 
 Instruction inst4 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
-			.setFieldArrayOperand("myArrayField", "i", "j").build();
+	.setFieldArrayOperand("myArrayField", "i", "j").build();
 // --this.myArrayField[i][j]
 ----------
 
@@ -752,15 +766,15 @@ Prefix operation with variable and array variable :
 
 ----------
 Instruction inst5 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.DECREMENT)
-			.setVariableOperand("myVariable").build();
+	.setVariableOperand("myVariable").build();
 // --myVariable
 
 Instruction inst6 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT)
-			.setVariableArrayOperand("myArrayVariable", 3, 2).build();
+	.setVariableArrayOperand("myArrayVariable", 3, 2).build();
 // ++myArrayVariable[3][2]
 
 Instruction inst7 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.INCREMENT)
-	 		.setVariableArrayOperand("myArrayVariable", "i", "j").build();
+	 .setVariableArrayOperand("myArrayVariable", "i", "j").build();
 // ++myArrayVariable[i][j]
 ----------
 
@@ -768,7 +782,7 @@ Prefix operation in most general case :
 
 ----------
 Instruction inst8 = PrefixOperationHelper.builder().setOperator(PrefixExpressionKind.NOT)
-			.setOperand(CallInstructionHelper.createThisMethodCallInstruction("isSomething")).build();
+	.setOperand(CallInstructionHelper.createThisMethodCallInstruction("isSomething")).build();
 // !this.isSomething()
 ----------
 
@@ -781,15 +795,15 @@ Postfix operation with field and array field :
 
 ----------
 Instruction inst1 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT).setFieldOperand("myField")
-				.build();
+	.build();
 // this.myField++
 
 Instruction inst2 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
-				.setFieldArrayOperand("myArrayField", 3, 2).build();
+	.setFieldArrayOperand("myArrayField", 3, 2).build();
 // this.myArrayField[3][2]--
 
 Instruction inst3 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
-				.setFieldArrayOperand("myArrayField", "i", "j").build();
+	.setFieldArrayOperand("myArrayField", "i", "j").build();
 // this.myArrayField[i][j]--
 ----------
 
@@ -797,15 +811,15 @@ Postfix operation with variable and array variable :
 
 ----------
 Instruction inst4 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
-				.setVariableOperand("myVariable").build();
+	.setVariableOperand("myVariable").build();
 // myVariable--
 
 Instruction inst5 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
-				.setVariableArrayOperand("myArrayVariable", 3, 2).build();
+	.setVariableArrayOperand("myArrayVariable", 3, 2).build();
 // myArrayVariable[3][2]++
 
 Instruction inst6 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
-				.setVariableArrayOperand("myArrayVariable", "i", "j").build();
+	.setVariableArrayOperand("myArrayVariable", "i", "j").build();
 // myArrayVariable[i][j]++
 ----------
 
@@ -813,7 +827,7 @@ Postfix operation in most general case :
 
 ----------
 Instruction inst7 = PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
-			.setOperand(CallInstructionHelper.createThisMethodCallInstruction("getIncrementableObject")).build();
+	.setOperand(CallInstructionHelper.createThisMethodCallInstruction("getIncrementableObject")).build();
 // this.getIncrementableObject()++
 ----------
 
@@ -826,19 +840,19 @@ Infix operation with constant :
 
 ----------
 ElementaryInstruction inst1 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.PLUS).setLeftOperand('f')
-			.setRightOperand("oo").build();
+	.setRightOperand("oo").build();
 // 'f' + "oo"
 
 ElementaryInstruction inst2 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.PLUS).setLeftOperand("ba")
-			.setRightOperand('r').build();
+	.setRightOperand('r').build();
 // "ba"+'r'
 
 ElementaryInstruction inst3 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.AND)
-			.setLeftOperand(true).setRightOperand(false).build();
+	.setLeftOperand(true).setRightOperand(false).build();
 // true & false
 
 ElementaryInstruction inst4 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.MINUS)
-			.setLeftOperand(42).setRightOperand(24).build();
+	.setLeftOperand(42).setRightOperand(24).build();
 // 42 - 24
 ----------
 
@@ -846,20 +860,20 @@ Infix operation with field and array field :
 
 ----------
 ElementaryInstruction inst5 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.NOT_EQUALS).setLeftThisOperand()
-			.setRightThisOperand().build();
+	.setRightThisOperand().build();
 // this != this
 				
 ElementaryInstruction inst6 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.DIVIDE).setLeftFieldOperand("myField")
-			.setRightFieldArrayOperand("myArrayField", 5, 5).build();
+	.setRightFieldArrayOperand("myArrayField", 5, 5).build();
 // this.myField / this.myArrayField[5][5]
 
 ElementaryInstruction inst7 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.TIMES)
-			.setLeftFieldArrayOperand("myArrayField", 3, 2)
-			.setRightFieldArrayOperand("myOtherArrayField", "i", "j").build();
+	.setLeftFieldArrayOperand("myArrayField", 3, 2)
+	.setRightFieldArrayOperand("myOtherArrayField", "i", "j").build();
 // this.myArrayField[3][2] * this.myOtherArrayField[i][j]
 
 ElementaryInstruction inst8 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.MINUS)
-			.setLeftFieldArrayOperand("myArrayField", "i", "j").setRightFieldOperand("myField").build();
+	.setLeftFieldArrayOperand("myArrayField", "i", "j").setRightFieldOperand("myField").build();
 // this.myArrayField[i][j] - this.myField
 ----------
 
@@ -867,16 +881,16 @@ Infix operation with variable and array variable :
 
 ----------
 ElementaryInstruction inst9 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.DIVIDE)
-			.setLeftVariableOperand("myVariable").setRightVariableArrayOperand("myArrayVariable", 5, 5).build();
+	.setLeftVariableOperand("myVariable").setRightVariableArrayOperand("myArrayVariable", 5, 5).build();
 // myVariable / myArrayVariable[5][5]
 
 ElementaryInstruction inst10 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.TIMES)
-			.setLeftVariableArrayOperand("myArrayVariable", 3, 2)
-			.setRightVariableArrayOperand("myOtherArrayVariable", "i", "j").build();
+	.setLeftVariableArrayOperand("myArrayVariable", 3, 2)
+	.setRightVariableArrayOperand("myOtherArrayVariable", "i", "j").build();
 // myArrayVariable[3][2] * myOtherArrayVariable[i][j]
 
 ElementaryInstruction inst11 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.MINUS)
-			.setLeftVariableArrayOperand("myArrayVariable", "i", "j").setRightVariableOperand("myVariable").build();
+	.setLeftVariableArrayOperand("myArrayVariable", "i", "j").setRightVariableOperand("myVariable").build();
 // myArrayVariable[i][j] - myVariable
 ----------
 
@@ -884,8 +898,8 @@ Infix operation in most general case :
 
 ----------
 ElementaryInstruction inst12 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.GREATER_EQUALS)
-			.setLeftOperand(CallInstructionHelper.createThisMethodCallInstruction("returnSomething"))
-			.setRightOperand(CallInstructionHelper.createThisMethodCallInstruction("returnSomethingElse")).build();
+	.setLeftOperand(CallInstructionHelper.createThisMethodCallInstruction("returnSomething"))
+	.setRightOperand(CallInstructionHelper.createThisMethodCallInstruction("returnSomethingElse")).build();
 // this.returnSomething() >= this.returnSomethingElse()
 ----------
 
@@ -898,16 +912,16 @@ Assignment instruction with constant :
 
 ----------
 Instruction inst1 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
-			.setLeftVariableOperand("myVariable").setRightOperand(false).build();
+	.setLeftVariableOperand("myVariable").setRightOperand(false).build();
 
 Instruction inst2 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
-			.setLeftVariableOperand("myVariable").setRightOperand('r').build();
+	.setLeftVariableOperand("myVariable").setRightOperand('r').build();
 
 Instruction inst3 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
-			.setLeftVariableOperand("myVariable").setRightOperand("foobar").build();
+	.setLeftVariableOperand("myVariable").setRightOperand("foobar").build();
 
 Instruction inst4 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
-			.setLeftVariableOperand("myVariable").setRightOperand(42).build();
+	.setLeftVariableOperand("myVariable").setRightOperand(42).build();
 ----------
 
 Generating code :
@@ -926,17 +940,17 @@ Assignment instruction with field and array field :
 
 ----------
 Instruction inst5 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN).setLeftThisOperand()
-			.setRightThisOperand().build();
+	.setRightThisOperand().build();
 				
 Instruction inst6 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.PLUS_ASSIGN)
-			.setLeftFieldOperand("myField").setRightFieldArrayOperand("myArrayField", 5, 5).build();
+	.setLeftFieldOperand("myField").setRightFieldArrayOperand("myArrayField", 5, 5).build();
 
 Instruction inst7 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.MINUS_ASSIGN)
-			.setLeftFieldArrayOperand("myArrayField", 3, 2)
-			.setRightFieldArrayOperand("myOtherArrayField", "i", "j").build();
+	.setLeftFieldArrayOperand("myArrayField", 3, 2)
+	.setRightFieldArrayOperand("myOtherArrayField", "i", "j").build();
 
 Instruction inst8 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.TIMES_ASSIGN)
-			.setLeftFieldArrayOperand("myArrayField", "i", "j").setRightFieldOperand("myField").build();
+	.setLeftFieldArrayOperand("myArrayField", "i", "j").setRightFieldOperand("myField").build();
 ----------
 
 Generating code :
@@ -955,14 +969,14 @@ Assignment instruction with variable and array variable :
 
 ----------
 Instruction inst9 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.PLUS_ASSIGN)
-			.setLeftVariableOperand("myVariable").setRightVariableArrayOperand("myArrayVariable", 5, 5).build();
+	.setLeftVariableOperand("myVariable").setRightVariableArrayOperand("myArrayVariable", 5, 5).build();
 
 Instruction inst10 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.MINUS_ASSIGN)
-			.setLeftVariableArrayOperand("myArrayVariable", 3, 2)
-			.setRightVariableArrayOperand("myOtherArrayVariable", "i", "j").build();
+	.setLeftVariableArrayOperand("myArrayVariable", 3, 2)
+	.setRightVariableArrayOperand("myOtherArrayVariable", "i", "j").build();
 
 Instruction inst11 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.TIMES_ASSIGN)
-			.setLeftVariableArrayOperand("myArrayVariable", "i", "j").setRightVariableOperand("myVariable").build();
+	.setLeftVariableArrayOperand("myArrayVariable", "i", "j").setRightVariableOperand("myVariable").build();
 ----------
 
 Generating code :
@@ -979,8 +993,8 @@ Assignment instruction in most general case :
 
 ----------
 Instruction inst12 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.DIVIDE_ASSIGN)
-			.setLeftOperand(CallInstructionHelper.createThisMethodCallInstruction("getAssignableObject"))
-			.setRightOperand(CallInstructionHelper.createThisMethodCallInstruction("returnSomething")).build();
+	.setLeftOperand(CallInstructionHelper.createThisMethodCallInstruction("getAssignableObject"))
+	.setRightOperand(CallInstructionHelper.createThisMethodCallInstruction("returnSomething")).build();
 ----------
 
 Generating code :
@@ -996,13 +1010,13 @@ You can replace calling instructions by any other *IElementary* instructions.
 
 ----------
 Instruction inst13 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
-			.setLeftVariableDeclarationOperand("int", "myVariable").setRightOperand(0).build();
+	.setLeftVariableDeclarationOperand("int", "myVariable").setRightOperand(0).build();
 
 Instruction inst14 = AssignmentInstructionHelper.builder()
-			.setOperator(AssignmentKind.ASSIGN)
-			.setLeftVariableDeclarationOperand("List<Integer>", "myFinalList", true // final_state
-			).setRightOperand(CallInstructionHelper.createClassInstanciationInstruction("LinkedList<Integer"))
-			.build();
+	.setOperator(AssignmentKind.ASSIGN)
+	.setLeftVariableDeclarationOperand("List<Integer>", "myFinalList", true // final_state
+	).setRightOperand(CallInstructionHelper.createClassInstanciationInstruction("LinkedList<Integer"))
+	.build();
 ----------
 
 Generating code :
@@ -1027,9 +1041,9 @@ ArrayInitializerInstruction inst1 = ArrayCreationHelper.createArray(1, 2, 3, 4, 
 // {1, 2, 3, 4, 5, 6}
 
 ArrayInitializerInstruction inst2 = ArrayCreationHelper.createArray(
-			ElementaryInstructionHelper.createInstruction("foo"),
-			ElementaryInstructionHelper.createInstruction("bar"),
-			ElementaryInstructionHelper.createInstruction("foobar"));
+	ElementaryInstructionHelper.createInstruction("foo"),
+	ElementaryInstructionHelper.createInstruction("bar"),
+	ElementaryInstructionHelper.createInstruction("foobar"));
 // {"foo", "bar", "foobar"}
 ----------
 
@@ -1042,11 +1056,11 @@ ElementaryInstruction inst3 = ArrayCreationHelper.builder("int").addDimensions(5
 // new int[5][2]
 
 ElementaryInstruction inst4 = ArrayCreationHelper.builder("Object").addFieldDimensions("myDimField","myDimField2")
-			.addVariableDimensions("myDimVariable","myDimVariable2").build();
+	.addVariableDimensions("myDimVariable","myDimVariable2").build();
 // new Object[this.myDimField][this.myDimField2][myDimVariable][myDimVariable2]
 
 ElementaryInstruction inst5 = ArrayCreationHelper.builder("List<Object>")
-			.addDimensions(CallInstructionHelper.createThisMethodCallInstruction("getDimension")).build();
+	.addDimensions(CallInstructionHelper.createThisMethodCallInstruction("getDimension")).build();
 // new List<Object>[this.getDimension()]
 ----------
 
@@ -1080,10 +1094,10 @@ Method call on the current object, a field or a variable :
 AbstractMethodInstruction inst1 = CallInstructionHelper.createThisMethodCallInstruction("currentObjectMethod");
 
 AbstractMethodInstruction inst2 = CallInstructionHelper.createFieldMethodCallInstruction("myField",
-			"fieldMethod");
+	"fieldMethod");
 			
 AbstractMethodInstruction inst3 = CallInstructionHelper.createVariableMethodCallInstruction("myVar",
-			"variableMethod");
+	"variableMethod");
 ----------
 
 Generating code :
@@ -1116,7 +1130,7 @@ Static method :
 
 ----------
 AbstractMethodInstruction inst6 = CallInstructionHelper.createStaticMethodCallInstruction("MyClass",
-			"staticMethod");
+	"staticMethod");
 ----------
 
 Generating code :
@@ -1129,9 +1143,9 @@ Chaining method call :
 
 ----------
 AbstractMethodInstruction inst7 = CallInstructionHelper.createCallMethodInstruction(
-			CallInstructionHelper.createCallMethodInstruction(
-				CallInstructionHelper.createThisMethodCallInstruction("firstMethod"), "secondMethod"),
-			"thirdMethod");
+	CallInstructionHelper.createCallMethodInstruction(
+	CallInstructionHelper.createThisMethodCallInstruction("firstMethod"), "secondMethod"),
+	"thirdMethod");
 ----------
 
 Generating code :
@@ -1149,11 +1163,11 @@ Add constant argument :
 
 ----------
 AbstractMethodInstruction inst1 = CallInstructionHelper
-			.createFieldMethodCallInstruction("myField", "someMethod").addArgument(42).addArgument("a string")
-			.addArgument("false");
+	.createFieldMethodCallInstruction("myField", "someMethod").addArgument(42).addArgument("a string")
+	.addArgument("false");
 
 AbstractMethodInstruction inst2 = CallInstructionHelper
-			.createVariableMethodCallInstruction("myVariable", "someMethod").addArgument('c').addNullArgument();
+	.createVariableMethodCallInstruction("myVariable", "someMethod").addArgument('c').addNullArgument();
 ----------
 
 Generating code :
@@ -1168,7 +1182,7 @@ Add current object, field or variable as argument :
 
 ----------
 AbstractMethodInstruction inst3 = CallInstructionHelper.createThisMethodCallInstruction("someMethod")
-			.addFieldArgument("myField").addVariableArgument("myVar").addThisArgument();
+	.addFieldArgument("myField").addVariableArgument("myVar").addThisArgument();
 ----------
 
 
@@ -1182,7 +1196,7 @@ Add complex argument :
 
 ----------
 AbstractMethodInstruction inst4 = CallInstructionHelper.createStaticMethodCallInstruction("MyClass",
-			"someMethod").addArgument(CallInstructionHelper.createThisMethodCallInstruction("otherMethod"));
+	"someMethod").addArgument(CallInstructionHelper.createThisMethodCallInstruction("otherMethod"));
 ----------
 
 
@@ -1257,7 +1271,7 @@ return this.myField;
 
 ----------
 AbstractMethodInstruction inst10 = CallInstructionHelper.createFieldMethodCallInstruction("myField",
-			"fieldMethod");
+	"fieldMethod");
 ComplexInstruction inst11 = inst10.convertToReturnInstruction();
 ----------
 
@@ -1275,18 +1289,18 @@ return this.myField.fieldMethod();
 
 ----------
 ComplexInstruction inst1 = IfInstructionHelper
-			.builder(
-					InfixOperationHelper.builder().setOperator(InfixExpressionKind.GREATER_EQUALS)
-							.setLeftVariableOperand("myInt").setRightOperand(5).build()// if_condition
-					,
-					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
-							.setVariableOperand("myInt").build() // then_first_instruction
-					, ReturnInstructionHelper.createVariableReturnInstruction("myInt") // then_second_instruction
-			)
-			.addElseBlockInstruction(
-					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
-							.setVariableOperand("myInt").build() // else_instruction
-			).build();
+	.builder(
+		InfixOperationHelper.builder().setOperator(InfixExpressionKind.GREATER_EQUALS)
+			.setLeftVariableOperand("myInt").setRightOperand(5).build()// if_condition
+		,
+		PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+			.setVariableOperand("myInt").build() // then_first_instruction
+		, ReturnInstructionHelper.createVariableReturnInstruction("myInt") // then_second_instruction
+	)
+	.addElseBlockInstruction(
+		PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+			.setVariableOperand("myInt").build() // else_instruction
+	).build();
 ----------
 
 Generating code : 
@@ -1307,15 +1321,15 @@ Switch on a variable :
 
 ----------
 ComplexInstruction inst1 = SwitchInstructionHelper
-			.builderOnVariable("myVar")
-			.addCaseBlock(2,
-					true, // with_break
-					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
-							.setVariableOperand("myVar").build())
-			.addFinalCaseBlock(
-					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
-							.setVariableOperand("myVar").build(),
-					ReturnInstructionHelper.createVariableReturnInstruction("myVar")); // final_case
+	.builderOnVariable("myVar")
+	.addCaseBlock(2,
+		true, // with_break
+		PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+			.setVariableOperand("myVar").build())
+	.addFinalCaseBlock(
+		PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+			.setVariableOperand("myVar").build(),
+		ReturnInstructionHelper.createVariableReturnInstruction("myVar")); // final_case
 ----------
 
 Generating code : 
@@ -1336,12 +1350,12 @@ Switch on a field :
 
 ----------
 ComplexInstruction inst2 = SwitchInstructionHelper
-			.builderOnField("myField")
-			.addCaseBlock('t', true) // with_break
-			.addCaseVariableBlock("otherVariable", true,
-					ReturnInstructionHelper.createVariableReturnInstruction("myField"))
-			.addCaseBlock(CallInstructionHelper.createFieldMethodCallInstruction("otherField", "aMethod"), false, // no_break
-					ReturnInstructionHelper.createThisReturnInstruction()).build();
+	.builderOnField("myField")
+	.addCaseBlock('t', true) // with_break
+	.addCaseVariableBlock("otherVariable", true,
+		ReturnInstructionHelper.createVariableReturnInstruction("myField"))
+	.addCaseBlock(CallInstructionHelper.createFieldMethodCallInstruction("otherField", "aMethod"), false, // no_break
+		ReturnInstructionHelper.createThisReturnInstruction()).build();
 ----------
 
 Generating code : 
@@ -1362,10 +1376,10 @@ Switch on any *IElementaryInstruction* instruction :
 
 ----------
 ComplexInstruction inst3 = SwitchInstructionHelper
-			.builder(CallInstructionHelper.createFieldMethodCallInstruction("myField", "fieldMethod"))
-			.addCaseNullBlock(true, // with_break
-					ReturnInstructionHelper.createNullReturnInstruction())
-			.addFinalCaseBlock(ReturnInstructionHelper.createThisReturnInstruction());
+	.builder(CallInstructionHelper.createFieldMethodCallInstruction("myField", "fieldMethod"))
+	.addCaseNullBlock(true, // with_break
+		ReturnInstructionHelper.createNullReturnInstruction())
+	.addFinalCaseBlock(ReturnInstructionHelper.createThisReturnInstruction());
 ----------
 
 Generating code : 
@@ -1387,13 +1401,13 @@ Generating while statement :
 
 ----------
 ComplexInstruction inst1 = DoWhileInstructionHelper.createWhileInstruction(
-			InfixOperationHelper.builder().setOperator(InfixExpressionKind.GREATER_EQUALS)
-					.setLeftVariableOperand("myInt").setRightOperand(5).build() // while_condition
-			,
-			PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
-					.setVariableOperand("myInt").build(), // while_first_instruction
-			CallInstructionHelper.createThisMethodCallInstruction("aMethod") // while_second_instruction
-			);
+	InfixOperationHelper.builder().setOperator(InfixExpressionKind.GREATER_EQUALS)
+		.setLeftVariableOperand("myInt").setRightOperand(5).build() // while_condition
+	,
+	PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.DECREMENT)
+		.setVariableOperand("myInt").build(), // while_first_instruction
+	CallInstructionHelper.createThisMethodCallInstruction("aMethod") // while_second_instruction
+	);
 ----------
 
 Generating code : 
@@ -1409,13 +1423,13 @@ Generating do statement :
 
 ----------
 ComplexInstruction inst2 = DoWhileInstructionHelper.createDoInstruction(
-			InfixOperationHelper.builder().setOperator(InfixExpressionKind.LESS_EQUALS)
-					.setLeftVariableOperand("myInt").setRightOperand(10).build() // do_condition
-			,
-			PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
-					.setVariableOperand("myInt").build(), // do_first_instruction
-			CallInstructionHelper.createThisMethodCallInstruction("aMethod") // do_second_instruction
-			);
+	InfixOperationHelper.builder().setOperator(InfixExpressionKind.LESS_EQUALS)
+		.setLeftVariableOperand("myInt").setRightOperand(10).build() // do_condition
+	,
+	PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+		.setVariableOperand("myInt").build(), // do_first_instruction
+	CallInstructionHelper.createThisMethodCallInstruction("aMethod") // do_second_instruction
+	);
 ----------
 
 Generating code : 
@@ -1432,39 +1446,39 @@ do {
 
 ----------
 ComplexInstruction inst1 = ForLoopInstructionHelper.createdForLoopInstruction(
-			AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
-					.setLeftVariableDeclarationOperand("int", "i").setRightOperand(0).build(), // for_initializer
-			InfixOperationHelper.builder().setOperator(InfixExpressionKind.LESS).setLeftVariableOperand("i")
-					.setRightVariableOperand("myArray.length").build(), // for_condition
-			PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT).setVariableOperand("i")
-					.build(), // for_updater
-			AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
-					.setLeftFieldArrayOperand("myArray", "i").setRightVariableOperand("myInt").build(), // for_first_instruction
-			PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
-					.setVariableOperand("myInt") // for_second_instruction
-					.build());
+	AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+		.setLeftVariableDeclarationOperand("int", "i").setRightOperand(0).build(), // for_initializer
+	InfixOperationHelper.builder().setOperator(InfixExpressionKind.LESS).setLeftVariableOperand("i")
+		.setRightFieldOperand("myArray.length").build(), // for_condition
+	PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT).setVariableOperand("i")
+		.build(), // for_updater
+	AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+		.setLeftFieldArrayOperand("myArray", "i").setRightVariableOperand("myInt").build(), // for_first_instruction
+	PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+		.setVariableOperand("myInt") // for_second_instruction
+		.build());
 ----------
 
 Or with builder :
 
 ----------
 ComplexInstruction inst2 = ForLoopInstructionHelper
-			.builderIntLoop("i")
-			.initializeVariable(0)
-			.setLoopCondition(InfixExpressionKind.LESS,
-					ElementaryInstructionHelper.createVariableInstruction("myArray.length"))
-			.setLoopUpdate(PostfixExpressionKind.INCREMENT)
-			.addInstructions(
-					AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
-							.setLeftFieldArrayOperand("myArray", "i").setRightVariableOperand("myInt").build(),
-					PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
-							.setVariableOperand("myInt").build()).build();
+	.builderIntLoop("i")
+	.initializeVariable(0)
+	.setLoopCondition(InfixExpressionKind.LESS,
+		ElementaryInstructionHelper.createFieldInstruction("myArray.length"))
+	.setLoopUpdate(PostfixExpressionKind.INCREMENT)
+	.addInstructions(
+		AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
+			.setLeftFieldArrayOperand("myArray", "i").setRightVariableOperand("myInt").build(),
+		PostfixOperationHelper.builder().setOperator(PostfixExpressionKind.INCREMENT)
+			.setVariableOperand("myInt").build()).build();
 ----------
 
 Generating code :
 
 ----------
-for (int i = 0 ; i<myArray.length ; i++){
+for (int i = 0 ; i< this.myArray.length ; i++){
 	this.myArray[i]=myInt;
 	myInt++;
 }
@@ -1474,24 +1488,24 @@ Other for loop creation :
 
 ----------
 ComplexInstruction inst3 = ForLoopInstructionHelper.builderIntLoop("i")
-			.setLoopCondition(InfixExpressionKind.LESS, 10).setLoopUpdate(AssignmentKind.PLUS_ASSIGN, 2).build();
+	.setLoopCondition(InfixExpressionKind.LESS, 10).setLoopUpdate(AssignmentKind.PLUS_ASSIGN, 2).build();
 
 ComplexInstruction inst4 = ForLoopInstructionHelper.builderIntLoop("i").initializeVariableWithField("myField")
-			.setLoopVariableCondition(InfixExpressionKind.LESS, "myVariable")
-			.setLoopVariableUpdate(AssignmentKind.PLUS_ASSIGN, "otherVariable").build();
+	.setLoopVariableCondition(InfixExpressionKind.LESS, "myVariable")
+	.setLoopVariableUpdate(AssignmentKind.PLUS_ASSIGN, "otherVariable").build();
 
 ComplexInstruction inst5 = ForLoopInstructionHelper.builderIntLoop("i")
-			.initializeVariableWithOtherVariable("myVariable")
-			.setLoopFieldCondition(InfixExpressionKind.LESS, "myField")
-			.setLoopFieldUpdate(AssignmentKind.PLUS_ASSIGN, "otherField").build();
+	.initializeVariableWithOtherVariable("myVariable")
+	.setLoopFieldCondition(InfixExpressionKind.LESS, "myField")
+	.setLoopFieldUpdate(AssignmentKind.PLUS_ASSIGN, "otherField").build();
 
 ComplexInstruction inst6 = ForLoopInstructionHelper
-			.builderIntLoop("i")
-			.initializeVariable(CallInstructionHelper.createThisMethodCallInstruction("aMethod"))
-			.setLoopCondition(InfixExpressionKind.LESS,
-					CallInstructionHelper.createThisMethodCallInstruction("anOtherMethod"))
-			.setLoopUpdate(AssignmentKind.PLUS_ASSIGN,
-					CallInstructionHelper.createThisMethodCallInstruction("aMethodAgain")).build();
+	.builderIntLoop("i")
+	.initializeVariable(CallInstructionHelper.createThisMethodCallInstruction("aMethod"))
+	.setLoopCondition(InfixExpressionKind.LESS,
+		CallInstructionHelper.createThisMethodCallInstruction("anOtherMethod"))
+	.setLoopUpdate(AssignmentKind.PLUS_ASSIGN,
+		CallInstructionHelper.createThisMethodCallInstruction("aMethodAgain")).build();
 ----------
 
 Generating code : 
@@ -1515,9 +1529,9 @@ For iterable with existing variable :
 
 ----------
 ComplexInstruction inst1 = ForIterableInstructionHelper.builder("variable")
-			.setIterableFieldInstruction("myIterableField")
-			.addInstructions(CallInstructionHelper.createVariableMethodCallInstruction("variable", "aMethod"))
-			.build();
+	.setIterableFieldInstruction("myIterableField")
+	.addInstructions(CallInstructionHelper.createVariableMethodCallInstruction("variable", "aMethod"))
+	.build();
 ----------
 
 Generating code : 
@@ -1532,9 +1546,9 @@ For iterable with variable creation :
 
 ----------
 ComplexInstruction inst2 = ForIterableInstructionHelper.builder("Object", "variable")
-			.setIterableVariableInstruction("myIterableVariable")
-			.addInstructions(CallInstructionHelper.createVariableMethodCallInstruction("variable", "aMethod"))
-			.build();
+	.setIterableVariableInstruction("myIterableVariable")
+	.addInstructions(CallInstructionHelper.createVariableMethodCallInstruction("variable", "aMethod"))
+	.build();
 ----------
 
 Generating code : 
@@ -1549,8 +1563,8 @@ A more general example :
 
 ----------
 ComplexInstruction inst3 = ForIterableInstructionHelper.builder("Object", "variable")
-			.setIterableInstruction(CallInstructionHelper.createThisMethodCallInstruction("methodReturnIterable"))
-			.build();
+	.setIterableInstruction(CallInstructionHelper.createThisMethodCallInstruction("methodReturnIterable"))
+	.build();
 ----------
 
 Generating code : 
@@ -1566,15 +1580,15 @@ You can replace the calling instruction by any other *IElementary* instruction.
 
 ----------
 ComplexInstruction inst = TryCatchInstructionHelper
-			.builder(CallInstructionHelper.createThisMethodCallInstruction("aMethodThrowingException"))
-			.addTryBlockInstruction(
-					CallInstructionHelper.createThisMethodCallInstruction("anotherMethodThrowingException"))
-			.addCatchBlock("Exception1", "e1", CallInstructionHelper.createThisMethodCallInstruction("doSomething"))
-			.addCatchBlock("Exception2", "e2",
-					CallInstructionHelper.createThisMethodCallInstruction("doSomethingElse"),
-					CallInstructionHelper.createSuperMethodCallInstruction("superMethod"))
-			.addFinallyBlockInstruction(CallInstructionHelper.createThisMethodCallInstruction("doFinalThing"),
-					CallInstructionHelper.createSuperMethodCallInstruction("superMethod")).build();
+	.builder(CallInstructionHelper.createThisMethodCallInstruction("aMethodThrowingException"))
+	.addTryBlockInstruction(
+		CallInstructionHelper.createThisMethodCallInstruction("anotherMethodThrowingException"))
+	.addCatchBlock("Exception1", "e1", CallInstructionHelper.createThisMethodCallInstruction("doSomething"))
+	.addCatchBlock("Exception2", "e2",
+		CallInstructionHelper.createThisMethodCallInstruction("doSomethingElse"),
+		CallInstructionHelper.createSuperMethodCallInstruction("superMethod"))
+	.addFinallyBlockInstruction(CallInstructionHelper.createThisMethodCallInstruction("doFinalThing"),
+		CallInstructionHelper.createSuperMethodCallInstruction("superMethod")).build();
 ----------
 
 Generating code : 
@@ -1606,11 +1620,11 @@ On any *IElementaryInstruction*, you can add parenthesis :
 
 ----------
 IElementaryInstruction inst = InfixOperationHelper.builder().setOperator(InfixExpressionKind.PLUS)
-			.setLeftOperand(5).setRightOperand(10).build();
+	.setLeftOperand(5).setRightOperand(10).build();
 
 IElementaryInstruction inst1 = InfixOperationHelper.builder().setOperator(InfixExpressionKind.TIMES)
-			.setLeftOperand(inst.withParentheses())
-			.setRightOperand(2).build();
+	.setLeftOperand(inst.withParentheses())
+	.setRightOperand(2).build();
 			
 // (5 + 10) * 2;
 ----------
@@ -1622,7 +1636,7 @@ You can convert any *IElementaryInstruction* to an instanceof instruction :
 
 ----------
 IElementaryInstruction inst = CallInstructionHelper.createThisMethodCallInstruction("aMethod")
-			.convertToInstanceOfInstruction("MyType");
+	.convertToInstanceOfInstruction("MyType");
 			
 // this.aMethod() instanceof MyType
 ----------
@@ -1634,7 +1648,7 @@ You can convert any *IElementaryInstruction* to a cast instruction :
 
 ----------
 IElementaryInstruction inst = CallInstructionHelper.createThisMethodCallInstruction("aMethod")
-			.convertToCastInstruction("MyType");
+	.convertToCastInstruction("MyType");
 
 // (MyType) this.aMethod()
 ----------
@@ -1646,11 +1660,11 @@ You can attach a Javadoc to any generated element :
 
 ----------
 Method method = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false
-			, InheritanceKind.NONE, "int[]", "aMethod").addParameter("int", "nbElement");
+	, InheritanceKind.NONE, "int[]", "aMethod").addParameter("int", "nbElement");
 
 method.addJavadoc(
-			"Create an integer array \n @param nbElement the number of elements in the created array \n @return the created array.",
-			false // no_empty_line
+	"Create an integer array \n @param nbElement the number of elements in the created array \n @return the created array.",
+	false // no_empty_line
 );
 ----------
 
@@ -1674,7 +1688,7 @@ You can attach a comment to any generated element :
 
 ----------
 Method method = MethodHelper.createMethod(createdClass, VisibilityKind.PUBLIC, false, InheritanceKind.NONE,
-			"int[]", "aMethod").addParameter("int", "nbElement");
+	"int[]", "aMethod").addParameter("int", "nbElement");
 ComplexInstruction inst = ReturnInstructionHelper.createNullReturnInstruction().addComment("TODO", true // prefix
 			);
 			
@@ -1705,7 +1719,7 @@ An example with a method :
 
 ----------
 Method createdMethod = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false,
-			InheritanceKind.NONE, "int[]", "aMethod");
+	InheritanceKind.NONE, "int[]", "aMethod");
 createdMethod.addAnnotation("my.javapackage.annotation", "anAnnotation");
 ----------
 
@@ -1726,6 +1740,8 @@ Create orphan annotation :
 
 ----------
 JavaAnnotation.createOrphanAnnotation("my.javapackage.orphan.annotation", "orphanAnnotation");
+
+JavaAnnotation.createOrphanAnnotation(createdMethod, "my.javapackage.orphan.annotation", "orphanAnnotation");
 ----------
 
 [[AnnotationParam]]
@@ -1738,10 +1754,10 @@ Annotation with simple parameter types :
 
 ----------
 MethodHelper
-		.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
-		.createAnnotation("my.javapackage.annotation", "anAnnotation")
-		.addAnnotationParameter("booleanProperty", true).addAnnotationParameter("intProperty", 5)
-		.addAnnotationParameter("charProperty", 't');
+	.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
+	.createAnnotation("my.javapackage.annotation", "anAnnotation")
+	.addAnnotationParameter("booleanProperty", true).addAnnotationParameter("intProperty", 5)
+	.addAnnotationParameter("charProperty", 't');
 ----------
 
 Generating code :
@@ -1759,10 +1775,10 @@ Annotation with Object parameter type, with escape :
 
 ----------
 MethodHelper
-		.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
-		.createAnnotation("my.javapackage.annotation", "anotherAnnotation")
-		.addAnnotationParameter("property", createdInterface.getName(), true // escape_state
-		);
+	.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
+	.createAnnotation("my.javapackage.annotation", "anotherAnnotation")
+	.addAnnotationParameter("property", createdInterface.getName(), true // escape_state
+	);
 ----------
 
 Generating code :
@@ -1780,10 +1796,10 @@ Or without escape :
 
 ----------
 MethodHelper
-		.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
-		.createAnnotation("my.javapackage.annotation", "anAnnotationAgain")
-		.addAnnotationParameter("property", createdInterface.getName(), false // escape_state
-		);
+	.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
+	.createAnnotation("my.javapackage.annotation", "anAnnotationAgain")
+	.addAnnotationParameter("property", createdInterface.getName(), false // escape_state
+	);
 ----------
 
 Generating code :
@@ -1803,10 +1819,10 @@ We can add array parameter to an annotation :
 
 ----------
 MethodHelper
-		.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
-		.createAnnotation("my.javapackage.annotation", "anAnnotationWithArrayParameter")
-		.addAnnotationParameter("arrayProperty", "aString", true)
-		.addAnnotationParameter("arrayProperty", "anotherString", true);
+	.createMethod(createdInterface, VisibilityKind.PUBLIC, false, InheritanceKind.NONE, "int[]", "aMethod")
+	.createAnnotation("my.javapackage.annotation", "anAnnotationWithArrayParameter")
+	.addAnnotationParameter("arrayProperty", "aString", true)
+	.addAnnotationParameter("arrayProperty", "anotherString", true);
 ----------
 
 Generating code :
@@ -1830,11 +1846,11 @@ Assume that we want to add to a method, an annotation with other annotations as 
 
 ----------
 JavaAnnotation annotation = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false,
-			InheritanceKind.NONE, "int[]", "aMethod").createAnnotation("my.javapackage.annotation",
-			"complexAnnotation");
-	annotation.createAnnotation("my.javapackage.internal.annotation", "internalAnnotation", "arrayParameter");
-	annotation.createAnnotation("my.javapackage.internal.annotation", "otherInternalAnnotation", "arrayParameter")
-			.addAnnotationParameter("property", "foo", true);
+	InheritanceKind.NONE, "int[]", "aMethod").createAnnotation("my.javapackage.annotation",
+	"complexAnnotation");
+annotation.createAnnotation("my.javapackage.internal.annotation", "internalAnnotation", "arrayParameter");
+annotation.createAnnotation("my.javapackage.internal.annotation", "otherInternalAnnotation", "arrayParameter")
+	.addAnnotationParameter("property", "foo", true);
 ----------
 
 Generating code :
@@ -1858,7 +1874,7 @@ Assume that we want to add a parameter with annotation to a method
 Method createdMethod = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false,
 		InheritanceKind.NONE, "int[]", "aMethod");
 Parameter parameter = ParameterHelper.builder("int").setMethod(createdMethod).build()
-		.addAnnotation("my.javapackage.annotation", "anAnnotation");
+	.addAnnotation("my.javapackage.annotation", "anAnnotation");
 parameter.createAnnotation("my.javapackage.annotation", "anotherAnnotation").addAnnotationParameter("property", 5);
 ----------
 
@@ -1874,5 +1890,142 @@ public interface MyInterface {
 	
 }
 ----------
+
+[[Advanced]]
+== Advanced User
+
+[[Builder]]
+
+=== AST Builders
+
+The API propose builder to manipulate the modisco AST model directly. 
+Below, we give the list of available AST node builder :
+
+* Package, ImportDeclaration, Modifier, LineComment
+* ClassDeclaration, CompilationUnit, UnresolvedClassDeclaration, InterfaceDeclaration, UnresolvedInterfaceDeclaration, EnumDeclaration, EnumConstantDeclaration
+* FieldDeclaration, FieldAccess, ConstructorDeclaration, MethodDeclaration
+* VariableDeclarationStatement, VariableDeclarationExpression, SingleVariableDeclaration, VariableDeclarationFragment, SingleVariableAccess
+* CastExpression, ClassInstanceCreation, InfixExpression, InstanceOfExpression, ParenthesizedExpression, PostfixExpression, PrefixExpression, ThisExpression
+* Assignment, ExpressionStatement, MethodInvocation, ReturnStatement, SuperConstructorInvocation, SuperMethodInvocation
+* Block, DoStatement, EnhancedForStatement, ForStatement, IfStatement, SwitchCase, SwitchStatement, TryStatement, CatchClause, WhileStatement
+* Annotation, AnnotationTypeDeclaration, UnresolvedAnnotationDeclaration, AnnotationTypeMemberDeclaration, AnnotationMemberValuePair
+* ArrayCreation, ArrayInitializer, ArrayType, ArrayAccess
+* Javadoc, TagElement, TextElement
+* PrimitiveType, TypeParameter, UnresolvedType, WildCardType, TypeAccess, ParameterizedType
+
+[[TypeAccess]]
+
+=== Generating Type Access
+
+Used when you want to access to an existed type
+
+Classic type access :
+
+----------
+TypeAccess t1 = TypeAccessHelper.createClassTypeAccess("MyClass");
+TypeAccess t2 = TypeAccessHelper.createInterfaceTypeAccess("MyInterface");
+TypeAccess t3 = TypeAccessHelper.createExceptionTypeAccess("MyException");
+TypeAccess t4 = TypeAccessHelper.createTypeAccess("MyClassOrMyInterface");
+----------
+
+This helper handles parameterized type and array type, so you can have an access to (for example) :
+
+----------
+TypeAccess t5 = TypeAccessHelper.createClassTypeAccess("MyType<O extends Object, S super String>");
+TypeAccess t6 = TypeAccessHelper.createTypeAccess("List<Integer>[]");
+----------
+
+Annotation type access :
+
+----------
+TypeAccess t7 = TypeAccessHelper.createAnnotationTypeAccess(createdMethod, "my.javapackage.annotation", "anAnnotation");
+TypeAccess t8 = TypeAccessHelper.createOrphanAnnotationTypeAccess(createdMethod, "my.javapackage.orphan.annotation.orphanAnnotation");
+----------
+
+[[FieldAccess]]
+
+=== Generating Field Access
+
+----------
+FieldAccess f1 = FieldAccessHelper.createFieldAccess("myField");
+// this.myField
+
+FieldAccess f2 = FieldAccessHelper.createFieldAccess("myField",true // proxy_state
+);
+----------
+
+This helper handles field accessible direclty via an other field :
+
+----------
+FieldAccess f3 = FieldAccessHelper.createFieldAccess("myArrayField.length");
+// this.myArrayField.length
+----------
+
+[[VariableAccess]]
+
+=== Generating Variable Access
+
+----------
+SingleVariableAccess v1 = VariableAccessHelper.createVariableAccess("myVariable");
+// myVariable
+
+SingleVariableAccess v2 = VariableAccessHelper.createVariableAccess("myVariable",true // proxy_state
+);
+----------
+
+This helper handles class variable and field accessible direclty via an other variable :
+
+----------
+SingleVariableAccess v3 = VariableAccessHelper.createVariableAccess("MyClass.myClassVariable");
+// MyClass.myClassVariable
+
+SingleVariableAccess v4 = VariableAccessHelper.createVariableAccess("myArray.length");
+// myArray.length
+----------
+
+[[TypeParameter]]
+
+=== Generating Type Parameter
+
+Used when you created a type (in ClassHelper or InterfaceHelper) :
+
+----------
+String className = "MyClass<T extends Object, S extends AnotherClass>";
+
+// Some code setting name and compilation unit of the type declaration classDecl
+
+TypeParameterHelper.addTypeParametersToTypeDeclaration(classDecl);
+// Add properly the parameter T and S
+----------
+
+Or when you declared a parametric method (in MethodHelper) :
+
+----------
+// Some code with the creation of the method declaration methodDeclaration
+
+TypeParameterHelper.addReturnTypeToMethodDeclaration(methodDeclaration, "<T super Collection<?>> List<S>");
+----------
+
+[[SingleDeclarationExpression]]
+
+=== Generating Single Declaration Expression
+
+----------
+VariableDeclarationExpression exp1 = VariableDeclarationExpressionHelper.createVariableDeclarationExpression("List<Integer>", "myList",
+	InheritanceKind.FINAL);
+// final List<Integer> myList;
+----------
+
+
+
+
+
+
+
+
+
+
+
+
 
 
