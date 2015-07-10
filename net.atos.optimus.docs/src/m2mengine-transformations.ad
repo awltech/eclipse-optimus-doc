@@ -588,14 +588,14 @@ Another complex example, generic method and array parameters  :
 
 ----------
 Method genericMethod = MethodHelper.builder(createdClass, "genericMethod")
-	.setReturnType("<T super Collection<?>> List<S>").addParameter("T[]", "arrayParam")
+	.setReturnType("<T extends Collection<?>> List<S>").addParameter("T[]", "arrayParam")
 	.addParameter("Collection<Object>[]", "complexArrayParam").build();
 ----------
 
 Generating code :
 
 ----------
-public <T super Collection<?>> List<S> genericMethod(T[] arrayParam, Collection<Object>[] complexArrayParam);
+public <T extends Collection<?>> List<S> genericMethod(T[] arrayParam, Collection<Object>[] complexArrayParam);
 ----------
 
 [[Parameter]]
@@ -629,14 +629,14 @@ public int[] aMethod(int nbElements);
 Another example with default behavior :
 
 ----------
-Parameter defaultParam = ParameterHelper.builder("List<Integer>").build();
+Parameter defaultParam = ParameterHelper.builder("List<? super Object>").build();
 createdMethod.addParameters(defaultParam);
 ----------
 
 Generating code :
 
 ----------
-public int[] aMethod(List<Integer> list);
+public int[] aMethod(List<? super Object> list);
 ----------
 
 [[Instruction]]
@@ -1931,7 +1931,7 @@ TypeAccess t4 = TypeAccessHelper.createTypeAccess("MyClassOrMyInterface");
 This helper handles parameterized type and array type, so you can have an access to (for example) :
 
 ----------
-TypeAccess t5 = TypeAccessHelper.createClassTypeAccess("MyType<O extends Object, S super String>");
+TypeAccess t5 = TypeAccessHelper.createClassTypeAccess("MyType<O extends Object, S extends AnotherType>");
 TypeAccess t6 = TypeAccessHelper.createTypeAccess("List<Integer>[]");
 ----------
 
