@@ -1,0 +1,343 @@
+:title: Generating field, constructor and method
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#Generating field, constructor and method#
+|===
+
+''''
+link:./m2mengine-apitransformations.html[Back to the index]
+
+* <<Field>>
+* <<Constructor>>
+* <<Method>>
+** <<Getter>>
+** <<Setter>>
+** <<Parameter>>
+
+[[Field]]
+== Generating Field
+
+We assume that we created classes and enumerations above.
+
+----------
+Field createdField = FieldHelper.createField(createdClass, VisibilityKind.PRIVATE, false // static_state
+	, false // final_state
+	, "MyFieldType", "myField");
+----------
+
+Or with builder :
+
+----------
+Field createdAnotherField = FieldHelper.builder(createdClass, "int").setVisibility(VisibilityKind.PRIVATE)
+	.setStatic(false).setFinal(false).setName("myOtherField").build();
+----------
+
+Generating code :
+
+----------
+// Some class code
+	private MyFieldType myField;
+	private int myOtherField;
+// Some class code
+----------
+
+A more complex example with default behavior :
+
+----------
+Field createdComplexField =  FieldHelper.builder(createdEnum, "List<Integer>").build();
+----------
+
+Generating code :
+
+----------
+// Some enum code
+	private List<Integer> list;
+// Some enum code
+----------
+
+You can directly access to the name and the type of a *Field*.
+
+[[Constructor]]
+== Generating Constructor
+
+We assume that we created classes, enumerations and fields above.
+
+----------
+Constructor createdConstructor = ConstructorHelper.createConstructor(createdClass, VisibilityKind.PUBLIC,
+	createdField, createdAnotherField); // Added parameter with auto-generated name and set specified fields
+----------
+
+Generating code :
+
+----------
+public MyClass(MyFieldType myFieldType, int myInt) {
+
+	this.myField = myFieldType;
+	this.myOtherField = myInt;
+	
+}
+----------
+
+Or with builder :
+
+----------
+Constructor createdConstructor = ConstructorHelper.builder(createdEnum).setVisibility(VisibilityKind.PUBLIC)
+	.addParameterAndSetAssociatedFields(createdField, createdAnotherField) // Added parameter with auto-generated name and set specified fields
+	.addExceptions("Exception1","Exception2") // Added exceptions in the builder
+	.build();
+----------
+
+Generating code :
+
+----------
+public myEnum(MyFieldType myFieldType, int myInt) throws Exception1, Exception2 {
+
+	this.myField = myFieldType;
+	this.myOtherField = myInt;
+	
+}
+----------
+
+We have additional ways to add parameters
+
+----------
+Constructor createdAnotherConstructor = ConstructorHelper.builder(createdClass)
+	.addParameter("int", "parameter").addParameter("List<Integer>", "parameter2") // Added parameter with specified type and name, no field setting
+	.build();
+
+Constructor createdAnotherConstructor2 = ConstructorHelper.builder(createdClass)
+	.addParameterAndSetAssociatedField("param1", createdField) // Added parameter with specified name and set specified field
+	.addParameterAndSetAssociatedField("param2", createdAnotherField) // Added parameter with specified name and set specified field
+	.build();
+
+Constructor createdAnotherConstructor3 = ConstructorHelper.builder(createdClass) 
+	.addParameters("int", "List<Integer>") // Added parameter with generated name, no field setting
+	.build();
+----------
+
+Generating code :
+
+----------
+public MyClass(int parameter, List<Integer> parameter2);
+
+public MyClass(MyFieldType param1, int param2){
+
+	this.myField=param1;
+	this.myOtherField=param2;
+	
+}
+
+public MyClass(int myInt, List<Integer> list);
+----------
+
+In the case one and three, you need to add some code in the constructor body with the *addInstructions()* method during or after the creation (see the link:./m2mengine-apitransformations-instruction.html[Instruction] part).
+
+Furthermore, we can add parameters and exceptions after the constructor creation by the *addParameter(s)()* and *addExceptions()* methods respectively.
+You also can remove all parameters with the *removeParameters()* method.
+
+[[Method]]
+== Generating Method
+
+We assume that we created classes, interfaces and enumerations above. We can add method to a class, an interface or an enumeration.
+
+----------
+Method method = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false // static_state
+	, InheritanceKind.NONE, "int[]", "aMethod", "Exception1", "Exception2");
+----------
+
+Or with builder :
+
+----------
+Method method = MethodHelper.builder(createdClass, "aMethod").setVisibility(VisibilityKind.PUBLIC)
+	.setStatic(false).setInheritance(InheritanceKind.NONE).setReturnType("int[]")
+	.addExceptions("Exception1", "Exception2").build();
+----------
+
+Generating code :
+
+----------
+public int[] aMethod() throws Exception1, Exception2;
+----------
+
+We have additional ways to add parameters
+
+----------
+Method createdAnotherMethod = MethodHelper.builder(createdEnum, "anotherMethod")
+	.addParameter("int", "parameter").addParameter("List<Integer>", "parameter2").build();
+
+Method createdAnotherMethod2 = MethodHelper.builder(createdClass, "anotherMethod2")
+	.addParameters("int", "List<Integer>")
+	.build();
+----------
+
+Generating code :
+
+----------
+public void anotherMethod(int parameter, List<Integer> parameter2);
+
+public void anotherMethod2(int myInt, List<Integer> list);
+----------
+
+In the case one and three, you need to add some code in the method body with the *addInstructions()* method during or after the creation (see the link:./m2mengine-apitransformations-instruction.html[Instruction] part).
+
+Furthermore, we can add parameters and exceptions after the method creation by the *addParameter(s)()* and *addExceptions()* methods respectively.
+You also can remove all parameters with the *removeParameters()* method.
+
+Another example with default behavior :
+
+----------
+Method defaultMethod = MethodHelper.builder(createdClass, "aComplexMethod").build();
+----------
+
+Generating code :
+
+----------
+public void aComplexMethod();
+----------
+
+Another complex example, generic method and array parameters  :
+
+----------
+Method genericMethod = MethodHelper.builder(createdClass, "genericMethod")
+	.setReturnType("<T extends Collection<?>> List<S>").addParameter("T[]", "arrayParam")
+	.addParameter("Collection<Object>[]", "complexArrayParam").build();
+----------
+
+Generating code :
+
+----------
+public <T extends Collection<?>> List<S> genericMethod(T[] arrayParam, Collection<Object>[] complexArrayParam);
+----------
+
+[[Getter]]
+=== Generating Getter
+
+We assume that we created classes and fields above.
+
+----------
+Method getter = GetterHelper.createGetter(createdClass, VisibilityKind.PUBLIC, false // final_state
+	, createdField, "getField");
+----------
+
+Or with builder :
+
+----------
+Method getter = GetterHelper.builder(createdEnum, createdField).setVisibility(VisibilityKind.PUBLIC).setFinal(false)
+	.setName("getField").build();
+----------
+
+Generating code :
+
+----------
+public MyFieldType getField() {
+
+	return this.myField;
+	
+}
+----------
+
+Another example with default behavior (auto-generated name) :
+
+----------
+Method anotherGetter = GetterHelper.builder(createdClass, createdField).build();
+----------
+
+Generating code :
+
+----------
+public MyFieldType getMyField() {
+
+	return this.myField;
+
+}
+----------
+
+[[Setter]]
+=== Generating Setter
+
+We assume that we created classes, enumerations and fields above.
+
+----------
+Method setter = SetterHelper.createSetter(createdClass, VisibilityKind.PUBLIC, false // final_state
+	, createdAnotherField, "setField", "parameter");
+----------
+
+Or with builder :
+
+----------
+Method setter = SetterHelper.builder(createdClass, createdAnotherField).setVisibility(VisibilityKind.PUBLIC)
+	.setFinal(false).setName("setField").setParameterName("parameter").build();
+----------
+
+Generating code :
+
+----------
+public void setField(int parameter) {
+
+	this.myOtherField = parameter;
+	
+}
+----------
+
+Another example with default behavior (auto-generated name and parameter name) :
+
+----------
+Method setter = SetterHelper.builder(createdEnum, createdAnotherField).build();
+----------
+
+Generating code :
+
+----------
+public void setMyOtherField(int myInt) {
+
+	this.myOtherField = myInt;
+	
+}
+----------
+
+[[Parameter]]
+=== Generating Custom Parameter
+
+A created parameter must be added to an abstract method via the *addParameters()* method in order to appear during the generation process.
+We can't reuse a parameter.
+
+----------
+Method createdMethod = MethodHelper.createMethod(createdClass, VisibilityKind.PUBLIC, false,
+	InheritanceKind.NONE, "int[]", "aMethod");
+Parameter createdParam = ParameterHelper.createParameter("int", "nbElements", 
+	false // final_state
+	false // varargs_state
+	);
+createdMethod.addParameters(createdParam);
+----------
+
+Or with builder :
+
+----------
+Parameter createdParam2 = ParameterHelper.builder("int").setName("nbElements").setMethod(createdMethod)
+	.setFinal(false).setVarargs(false).build();
+----------
+
+Generating code :
+
+----------
+public int[] aMethod(int nbElements);
+----------
+
+You can set the method of the parameter after creation with the *setMethod()* method.
+
+Another example with default behavior :
+
+----------
+Parameter defaultParam = ParameterHelper.builder("List<? super Object>").build();
+createdMethod.addParameters(defaultParam);
+----------
+
+Generating code :
+
+----------
+public int[] aMethod(List<? super Object> list);
+----------
+
+You can directly access to the name and the type of a *Parameter*.

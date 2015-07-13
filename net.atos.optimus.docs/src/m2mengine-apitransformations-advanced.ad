@@ -1,0 +1,174 @@
+:title: Advanced use
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#Advanced use#
+|===
+
+''''
+link:./m2mengine-apitransformations.html[Back to the index]
+
+* <<Builder>>
+* <<ImportDeclaration>>
+* <<TypeAccess>>
+* <<FieldAccess>>
+* <<VariableAccess>>
+* <<TypeParameter>>
+* <<SingleDeclarationExpression>>
+* <<AnnotationTypeMemberDeclaration>>
+* <<AnnotationMemberValuePair>>
+
+[[Builder]]
+
+== AST Builders
+
+The API propose builder to manipulate the modisco AST model directly. 
+Below, we give the list of available AST node builder :
+
+* Package, ImportDeclaration, Modifier, LineComment
+* ClassDeclaration, CompilationUnit, UnresolvedClassDeclaration, InterfaceDeclaration, UnresolvedInterfaceDeclaration, EnumDeclaration, EnumConstantDeclaration
+* FieldDeclaration, FieldAccess, ConstructorDeclaration, MethodDeclaration
+* VariableDeclarationStatement, VariableDeclarationExpression, SingleVariableDeclaration, VariableDeclarationFragment, SingleVariableAccess
+* CastExpression, ClassInstanceCreation, InfixExpression, InstanceOfExpression, ParenthesizedExpression, PostfixExpression, PrefixExpression, ThisExpression
+* Assignment, ExpressionStatement, MethodInvocation, ReturnStatement, SuperConstructorInvocation, SuperMethodInvocation
+* Block, DoStatement, EnhancedForStatement, ForStatement, IfStatement, SwitchCase, SwitchStatement, TryStatement, CatchClause, WhileStatement
+* Annotation, AnnotationTypeDeclaration, UnresolvedAnnotationDeclaration, AnnotationTypeMemberDeclaration, AnnotationMemberValuePair
+* ArrayCreation, ArrayInitializer, ArrayType, ArrayAccess
+* Javadoc, TagElement, TextElement
+* PrimitiveType, TypeParameter, UnresolvedType, WildCardType, TypeAccess, ParameterizedType
+
+[[ImportDeclaration]]
+== Generating Import Declaration
+
+----------
+ImportDeclarationHelper.createImportDeclaration("my.javapackage.Object", true // static_state
+);
+// import static my.javapackage.Object;
+
+ImportDeclarationHelper.createImportDeclaration("my.other.javapackage.*", false // static_state
+);
+// import my.other.javapackage.*;
+----------
+
+[[TypeAccess]]
+
+== Generating Type Access
+
+Used when you want to access to an existed type
+
+Classic type access :
+
+----------
+TypeAccess t1 = TypeAccessHelper.createClassTypeAccess("MyClass");
+TypeAccess t2 = TypeAccessHelper.createInterfaceTypeAccess("MyInterface");
+TypeAccess t3 = TypeAccessHelper.createExceptionTypeAccess("MyException");
+TypeAccess t4 = TypeAccessHelper.createTypeAccess("MyClassOrMyInterface");
+----------
+
+This helper handles parameterized type and array type, so you can have an access to (for example) :
+
+----------
+TypeAccess t5 = TypeAccessHelper.createClassTypeAccess("MyType<O extends Object, S extends AnotherType>");
+TypeAccess t6 = TypeAccessHelper.createTypeAccess("List<Integer>[]");
+----------
+
+Annotation type access :
+
+----------
+TypeAccess t7 = TypeAccessHelper.createAnnotationTypeAccess(createdMethod, "my.javapackage.annotation", "anAnnotation");
+TypeAccess t8 = TypeAccessHelper.createOrphanAnnotationTypeAccess(createdMethod, "my.javapackage.orphan.annotation.orphanAnnotation");
+----------
+
+[[FieldAccess]]
+
+== Generating Field Access
+
+----------
+FieldAccess f1 = FieldAccessHelper.createFieldAccess("myField");
+// this.myField
+
+FieldAccess f2 = FieldAccessHelper.createFieldAccess("myField",true // proxy_state
+);
+----------
+
+This helper handles field accessible direclty via an other field :
+
+----------
+FieldAccess f3 = FieldAccessHelper.createFieldAccess("myArrayField.length");
+// this.myArrayField.length
+----------
+
+[[VariableAccess]]
+
+== Generating Variable Access
+
+----------
+SingleVariableAccess v1 = VariableAccessHelper.createVariableAccess("myVariable");
+// myVariable
+
+SingleVariableAccess v2 = VariableAccessHelper.createVariableAccess("myVariable",true // proxy_state
+);
+----------
+
+This helper handles class variable and field accessible direclty via an other variable :
+
+----------
+SingleVariableAccess v3 = VariableAccessHelper.createVariableAccess("MyClass.myClassVariable");
+// MyClass.myClassVariable
+
+SingleVariableAccess v4 = VariableAccessHelper.createVariableAccess("myArray.length");
+// myArray.length
+----------
+
+[[TypeParameter]]
+
+== Generating Type Parameter
+
+Used when you created a type (in ClassHelper or InterfaceHelper) :
+
+----------
+String className = "MyClass<T extends Object, S extends AnotherClass>";
+ClassDeclaration classDecl =  ClassDeclarationBuilder.builder()
+	.setCompilationUnit(cu).setName(className).build();
+
+TypeParameterHelper.addTypeParametersToTypeDeclaration(classDecl);
+// Add properly the parameter T and S
+----------
+
+Or when you declared a parametric method (in MethodHelper) :
+
+----------
+// Some code with the creation of the MethodDeclaration methodDeclaration
+
+TypeParameterHelper.addReturnTypeToMethodDeclaration(methodDeclaration, "<T super Collection<?>> List<S>");
+----------
+
+[[SingleDeclarationExpression]]
+
+== Generating Single Declaration Expression
+
+----------
+VariableDeclarationExpression exp1 = VariableDeclarationExpressionHelper.createVariableDeclarationExpression("List<Integer>", "myList",
+	InheritanceKind.FINAL);
+// final List<Integer> myList;
+----------
+
+[[AnnotationTypeMemberDeclaration]]
+== Generating Annotation Type Member Declaration
+
+----------
+// Some code with the creation of the Annotation annotation
+
+AnnotationTypeMemberDeclaration annotationType = AnnotationTypeMemberDeclarationHelper
+	.createTypeMemberDeclaration(annotation, "propertyValue");
+----------
+
+[[AnnotationMemberValuePair]]
+== Generating Annotation Member Value Pair
+
+----------
+// Some code with the creation of the Annotation annotation and the Expression propertyExpression
+
+AnnotationMemberValuePair annotationPair = AnnotationMemberValuePairHelper.createAnnotationMemberValuePair(
+				annotation, "propertyValue", propertyExpression);
+----------

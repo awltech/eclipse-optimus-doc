@@ -1,0 +1,269 @@
+:title: Generating package, class, interface, enumeration and import
+
+[cols="a,10a"]
+|===
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#Generating package, class, interface, enumeration and import#
+|===
+
+''''
+
+link:./m2mengine-apitransformations.html[Back to the index]
+
+* <<Package>>
+* <<Class>>
+** <<InternalClass>>
+* <<Interface>>
+* <<Enumeration>>
+* <<Import>>
+
+[[Package]]
+== Generating Package
+
+To create a package, we need the java model (mainly the source folder) and his full qualified name. 
+The already existed package chunk aren't recreated by the method below.
+
+----------
+JavaPackage createdPackage = PackageHelper.createPackage(javaModel, "my.generated.javapackage");
+----------
+
+You can retrieve the full qualified package name with the *getFullQualifiedName()* method.
+
+[[Class]]
+== Generating Class
+
+We assume that we created the package above
+
+----------
+JavaClass createdClass = ClassHelper.createClass(createdPackage, "MyClass", VisibilityKind.PUBLIC,
+	InheritanceKind.NONE, false // proxy_state
+	, "SuperClass", "MyImplementedInterface1", "MyImplementedInterface2");
+----------
+
+Or with builder :
+
+----------
+JavaClass createdClass = ClassHelper.builder(createdPackage, "MyClass").setVisibility(VisibilityKind.PUBLIC)
+	.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
+	.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
+----------
+
+You can add new implemented interface via the *addInterfaces()* method after the creation of the JavaClass.
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public class MyClass extends SuperClass implements MyImplementedInterface1, MyImplementedInterface2 {
+}
+----------
+
+A more complex example with default behavior :
+
+----------
+JavaClass createdComplexClass = ClassHelper.builder(createdPackage, "MyComplexClass<T super Object>")
+	.setSuperClass("MySuperClass<T>").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public class MyComplexClass<T extends Object> extends MySuperClass<T> {}
+----------
+
+[[InternalClass]]
+=== Generating internal class
+
+We assume that we created the class above
+
+----------
+JavaClass createdInternalClass = ClassHelper.createInternalClass(createdClass, "MyInternalClass", VisibilityKind.PUBLIC, InheritanceKind.NONE, false // proxy_state
+	, "SuperClass", "MyImplementedInterface1", "MyImplementedInterface2");
+----------
+
+Or with builder :
+
+----------
+JavaClass createdInternalClass = ClassHelper.internalClassBuilder(createdClass, "MyInternalClass").setVisibility(VisibilityKind.PUBLIC)
+	.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
+	.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public class MyClass extends SuperClass implements MyImplementedInterface1, MyImplementedInterface2 {
+	
+	public class MyInternalClass extends SuperClass implements
+			MyImplementedInterface1, MyImplementedInterface2 {
+	}
+	
+}
+----------
+
+[[Interface]]
+== Generating Interface
+
+We assume that we created the package above
+
+----------
+Interface createdInterface = InterfaceHelper.createInterface(createdPackage, "MyInterface",
+	VisibilityKind.PUBLIC, false // abstract_state
+	, InheritanceKind.NONE, false // proxy_state
+	, "MySuperInterface1", "MySuperInterface2");
+----------
+
+Or with builder :
+
+----------
+Interface createdInterface = createdInterface = InterfaceHelper.builder(createdPackage, "MyInterface").setVisibility(VisibilityKind.PUBLIC)
+	.setAbstract(false).setProxy(false).setInheritance(InheritanceKind.NONE)
+	.addInterfaces("MySuperInterface1", "MySuperInterface2").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public interface MyInterface extends MySuperInterface1, MySuperInterface2 {}
+----------
+
+You can add new extended interface via the *addInterfaces()* method after the creation of the JavaClass.
+
+A more complex example with default behavior :
+
+----------
+Interface createdComplexInterface = InterfaceHelper
+	.builder(createdPackage, "MyComplexInterface<T extends Object>")
+	.addInterfaces("SuperParametricInterface<Integer>").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public interface MyComplexInterface<T extends Object> extends SuperParametricInterface<Integer> {}
+----------
+
+[[Enumeration]]
+== Generating Enumeration
+
+We assume that we created the package above
+
+----------
+JavaEnum createdEnum = EnumHelper.createEnum(createdPackage, "myEnum", false // proxy_state
+	, "MyImplementedInterface1", "MyImplementedInterface2").addEnumConstant("MyConstant");
+----------
+
+Or with builder :
+
+----------
+createdEnum = EnumHelper.builder(createdPackage, "myEnum").setProxy(false)
+	.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").addEnumConstant("MyConstant").build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+import java.util.List;
+
+public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {
+
+	MyConstant();
+	
+}
+----------
+
+You can add new implemented interface via the *addInterfaces()* method after the creation of the JavaEnum.
+
+Warning : you must add at least one constant when you create a enumeration or the generation doesn't work properly.
+With the *addEnumConstant()* methods, you can add list of arguments to an enum constant during or after the creation (see the link:./m2mengine-apitransformations-instruction.html[Instruction] part).
+
+A more complex example with default behavior :
+
+----------
+JavaEnum createdComplexEnum = EnumHelper
+	.builder(createdPackage, "myDefaultEnum")
+	.addEnumConstant("MyFirstConstant", ElementaryInstructionHelper.createInstruction(true),
+		ElementaryInstructionHelper.createInstruction(2))
+	.addEnumConstant("MySecondConstant", ElementaryInstructionHelper.createInstruction(false),
+		ElementaryInstructionHelper.createInstruction(10))
+	.addEnumConstant("MyThirdConstant", ElementaryInstructionHelper.createInstruction(true),
+		ElementaryInstructionHelper.createInstruction(5)).build();
+----------
+
+Generating code :
+
+----------
+package my.generated.javapackage;
+
+public enum myDefaultEnum {
+	MyFirstConstant(true, 2), MySecondConstant(false, 10), MyThirdConstant(
+			true, 5);
+			
+}
+----------
+
+[[Import]]
+== Generating Import
+
+We assume that we created classes, interfaces and enumerations above. You can add import during the creation process :
+
+----------
+JavaClass anotherClass = ClassHelper.builder(createdPackage, "AnotherClass").addImports("java.util.List")
+	.addStaticImports("java.util.Collections.*").build();
+
+Interface anotherInterface = InterfaceHelper.builder(createdPackage, "AnotherInterface")
+	.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
+
+JavaEnum anotherEnum = EnumHelper.builder(createdPackage, "AnotherEnum")
+	.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*").build();
+----------
+
+Or after :
+
+----------
+createdClass.addImports("java.util.List").addStaticImports("java.util.Collections.*");
+		
+createdInterface.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*");
+
+createdEnum.addImports("java.util.*", "java.lang.*").addStaticImports("java.util.Collections.*");
+----------
+
+Generating code :
+
+----------
+// Class
+package my.generated.javapackage;
+
+import java.util.List;
+import static java.util.Collections.*;
+
+public class MyClass extends SuperClass implements MyImplementedInterface1, MyImplementedInterface2 {}
+
+// Interface
+package my.generated.javapackage;
+
+import java.util.*;
+import java.lang.*;
+import static java.util.Collections.*;
+
+public interface MyInterface extends MySuperInterface1, MySuperInterface2 {}
+
+// Enum
+package my.generated.javapackage;
+
+import java.util.*;
+import java.lang.*;
+import static java.util.Collections.*;
+
+public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {}
+----------
