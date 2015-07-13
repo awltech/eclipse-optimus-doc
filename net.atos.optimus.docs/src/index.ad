@@ -37,7 +37,7 @@ The following links will head you towards the different parts of Optimus and the
 * M2M Engine
 ** link:./m2mengine-orchestration.html[M2M Engine Overview]
 ** link:./m2mengine-contributions.html[Contributing your own transformations to the M2M Engine]
-** link:./m2mengine-transformations.html[Writing your own transformations]
+** link:./m2mengine-apitransformations.html[Writing your own transformations]
 ** link:./m2mengine-orchestration-modeler.html[Using the orchestration modeler]
 ** link:./m2mengine-context.html[Using the transformation context]
 ** link:./m2mengine-transfomasks.html[Using transformation masks]

@@ -81,6 +81,10 @@ We can generate the following concept of the Java language :
 ** <<AnnotationTypeMemberDeclaration>>
 ** <<AnnotationMemberValuePair>>
 
+Below, the class diagram of the API, mainly, an encapsulation of the AST model :
+
+image: images/m2mengine-apitransformations/m2m-img01.png[]
+
 [[Package]]
 == Generating Package
 
