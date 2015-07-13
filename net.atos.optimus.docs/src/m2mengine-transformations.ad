@@ -72,11 +72,14 @@ We can generate the following concept of the Java language :
 ** <<AnnotationComplex>>
 * <<Advanced>>
 ** <<Builder>>
+** <<ImportDeclaration>>
 ** <<TypeAccess>>
 ** <<FieldAccess>>
 ** <<VariableAccess>>
 ** <<TypeParameter>>
 ** <<SingleDeclarationExpression>>
+** <<AnnotationTypeMemberDeclaration>>
+** <<AnnotationMemberValuePair>>
 
 [[Package]]
 == Generating Package
@@ -87,6 +90,8 @@ The already existed package chunk aren't recreated by the method below.
 ----------
 JavaPackage createdPackage = PackageHelper.createPackage(javaModel, "my.generated.javapackage");
 ----------
+
+You can retrieve the full qualified package name with the *getFullQualifiedName()* method.
 
 [[AbstractClass]]
 == Generating Class, Interface and Enumeration
@@ -109,6 +114,8 @@ JavaClass createdClass = ClassHelper.builder(createdPackage, "MyClass").setVisib
 	.setInheritance(InheritanceKind.NONE).setProxy(false).setSuperClass("SuperClass")
 	.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
 ----------
+
+You can add new implemented interface via the *addInterfaces()* method after the creation of the JavaClass.
 
 Generating code :
 
@@ -193,6 +200,8 @@ package my.generated.javapackage;
 public interface MyInterface extends MySuperInterface1, MySuperInterface2 {}
 ----------
 
+You can add new extended interface via the *addInterfaces()* method after the creation of the JavaClass.
+
 A more complex example with default behavior :
 
 ----------
@@ -240,14 +249,22 @@ public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {
 }
 ----------
 
+You can add new implemented interface via the *addInterfaces()* method after the creation of the JavaEnum.
+
 Warning : you must add at least one constant when you create a enumeration or the generation doesn't work properly.
-With the *addEnumConstant* methods, you can add list of arguments to an enum constant (see the <<Instruction>> part).
+With the *addEnumConstant()* methods, you can add list of arguments to an enum constant during or after the creation (see the <<Instruction>> part).
 
 A more complex example with default behavior :
 
 ----------
-JavaEnum createdComplexEnum = EnumHelper.builder(createdPackage, "myDefaultEnum").addEnumConstant("MyFirstConstant")
-	.addEnumConstant("MySecondConstant").addEnumConstant("MyThirdConstant").build();
+JavaEnum createdComplexEnum = EnumHelper
+	.builder(createdPackage, "myDefaultEnum")
+	.addEnumConstant("MyFirstConstant", ElementaryInstructionHelper.createInstruction(true),
+		ElementaryInstructionHelper.createInstruction(2))
+	.addEnumConstant("MySecondConstant", ElementaryInstructionHelper.createInstruction(false),
+		ElementaryInstructionHelper.createInstruction(10))
+	.addEnumConstant("MyThirdConstant", ElementaryInstructionHelper.createInstruction(true),
+		ElementaryInstructionHelper.createInstruction(5)).build();
 ----------
 
 Generating code :
@@ -256,9 +273,9 @@ Generating code :
 package my.generated.javapackage;
 
 public enum myDefaultEnum {
-
-	MyFirstConstant(), MySecondConstant(), MyThirdConstant();
-	
+	MyFirstConstant(true, 2), MySecondConstant(false, 10), MyThirdConstant(
+			true, 5);
+			
 }
 ----------
 
@@ -295,7 +312,7 @@ Generating code :
 package my.generated.javapackage;
 
 import java.util.List;
-import java.util.Collections.*;
+import static java.util.Collections.*;
 
 public class MyClass extends SuperClass implements MyImplementedInterface1, MyImplementedInterface2 {}
 
@@ -304,7 +321,7 @@ package my.generated.javapackage;
 
 import java.util.*;
 import java.lang.*;
-import java.util.Collections.*;
+import static java.util.Collections.*;
 
 public interface MyInterface extends MySuperInterface1, MySuperInterface2 {}
 
@@ -313,7 +330,7 @@ package my.generated.javapackage;
 
 import java.util.*;
 import java.lang.*;
-import java.util.Collections.*;
+import static java.util.Collections.*;
 
 public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {}
 ----------
@@ -358,6 +375,8 @@ Generating code :
 	private List<Integer> list;
 // Some enum code
 ----------
+
+You can directly access to the name and the type of a *Field*.
 
 [[AbstractMethod]]
 == Generating Constructor and Method
@@ -435,9 +454,10 @@ public MyClass(MyFieldType param1, int param2){
 public MyClass(int myInt, List<Integer> list);
 ----------
 
-In the case one and three, you need to add some code in the constructor body (see the <<Instruction>> part).
+In the case one and three, you need to add some code in the constructor body with the *addInstructions()* method during or after the creation (see the <<Instruction>> part).
 
-Furthermore, we can add parameters and exceptions after the constructor creation by method with the same name.
+Furthermore, we can add parameters and exceptions after the constructor creation by the *addParameter(s)()* and *addExceptions()* methods respectively.
+You also can remove all parameters with the *removeParameters()* method.
 
 [[Getter]]
 === Generating Getter
@@ -568,9 +588,10 @@ public void anotherMethod(int parameter, List<Integer> parameter2);
 public void anotherMethod2(int myInt, List<Integer> list);
 ----------
 
-When you add a non abstract method to a class, you need to add some code in the method body (see the <<Instruction>> part).
+In the case one and three, you need to add some code in the method body with the *addInstructions()* method during or after the creation (see the <<Instruction>> part).
 
-Furthermore, we can add parameters and exceptions after the constructor creation by method with the same name.
+Furthermore, we can add parameters and exceptions after the method creation by the *addParameter(s)()* and *addExceptions()* methods respectively.
+You also can remove all parameters with the *removeParameters()* method.
 
 Another example with default behavior :
 
@@ -607,8 +628,9 @@ We can't reuse a parameter.
 ----------
 Method createdMethod = MethodHelper.createMethod(createdClass, VisibilityKind.PUBLIC, false,
 	InheritanceKind.NONE, "int[]", "aMethod");
-Parameter createdParam = ParameterHelper.createParameter(false // final_state
-	, "int", "nbElements", false // varargs_state
+Parameter createdParam = ParameterHelper.createParameter("int", "nbElements", 
+	false // final_state
+	false // varargs_state
 	);
 createdMethod.addParameters(createdParam);
 ----------
@@ -616,8 +638,8 @@ createdMethod.addParameters(createdParam);
 Or with builder :
 
 ----------
-Parameter createdParam2 = ParameterHelper.builder("int").setFinal(false).setName("nbElements")
-	.setMethod(createdMethod).setVarargs(false).build();
+Parameter createdParam2 = ParameterHelper.builder("int").setName("nbElements").setMethod(createdMethod)
+	.setFinal(false).setVarargs(false).build();
 ----------
 
 Generating code :
@@ -625,6 +647,8 @@ Generating code :
 ----------
 public int[] aMethod(int nbElements);
 ----------
+
+You can set the method of the parameter after creation with the *setMethod()* method.
 
 Another example with default behavior :
 
@@ -638,6 +662,8 @@ Generating code :
 ----------
 public int[] aMethod(List<? super Object> list);
 ----------
+
+You can directly access to the name and the type of a *Parameter*.
 
 [[Instruction]]
 == Generating Instruction
@@ -1159,6 +1185,8 @@ You can replace the original caller by any other *IElementary* instructions.
 [[Argument]]
 === Add Argument To Generated Method
 
+You can add argument by methods presented below during or after the creation
+
 Add constant argument :
 
 ----------
@@ -1547,7 +1575,8 @@ For iterable with variable creation :
 ----------
 ComplexInstruction inst2 = ForIterableInstructionHelper.builder("Object", "variable")
 	.setIterableVariableInstruction("myIterableVariable")
-	.addInstructions(CallInstructionHelper.createVariableMethodCallInstruction("variable", "aMethod"))
+	.addInstructions(CallInstructionHelper.createVariableMethodCallInstruction("variable", "aMethod"),
+		CallInstructionHelper.createVariableMethodCallInstruction("variable", "anotherMethod"))
 	.build();
 ----------
 
@@ -1556,6 +1585,7 @@ Generating code :
 ----------
 for (Object variable : myIterableVariable){
 	variable.aMethod();
+	variable.anotherMethod();
 }
 ----------
 
@@ -1656,7 +1686,7 @@ IElementaryInstruction inst = CallInstructionHelper.createThisMethodCallInstruct
 [[Javadoc]]
 == Add Javadoc To Generated Element
 
-You can attach a Javadoc to any generated element :
+You can attach a Javadoc to any generated *Element* :
 
 ----------
 Method method = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false
@@ -1684,7 +1714,7 @@ public int[] aMethod(int nbElement);
 [[Comment]]
 == Add Comment To Generated Element
 
-You can attach a comment to any generated element :
+You can attach a comment to any generated *Element* :
 
 ----------
 Method method = MethodHelper.createMethod(createdClass, VisibilityKind.PUBLIC, false, InheritanceKind.NONE,
@@ -1913,6 +1943,19 @@ Below, we give the list of available AST node builder :
 * Javadoc, TagElement, TextElement
 * PrimitiveType, TypeParameter, UnresolvedType, WildCardType, TypeAccess, ParameterizedType
 
+[[ImportDeclaration]]
+=== Generating Import Declaration
+
+----------
+ImportDeclarationHelper.createImportDeclaration("my.javapackage.Object", true // static_state
+);
+// import static my.javapackage.Object;
+
+ImportDeclarationHelper.createImportDeclaration("my.other.javapackage.*", false // static_state
+);
+// import my.other.javapackage.*;
+----------
+
 [[TypeAccess]]
 
 === Generating Type Access
@@ -1991,8 +2034,8 @@ Used when you created a type (in ClassHelper or InterfaceHelper) :
 
 ----------
 String className = "MyClass<T extends Object, S extends AnotherClass>";
-
-// Some code setting name and compilation unit of the type declaration classDecl
+ClassDeclaration classDecl =  ClassDeclarationBuilder.builder()
+	.setCompilationUnit(cu).setName(className).build();
 
 TypeParameterHelper.addTypeParametersToTypeDeclaration(classDecl);
 // Add properly the parameter T and S
@@ -2001,7 +2044,7 @@ TypeParameterHelper.addTypeParametersToTypeDeclaration(classDecl);
 Or when you declared a parametric method (in MethodHelper) :
 
 ----------
-// Some code with the creation of the method declaration methodDeclaration
+// Some code with the creation of the MethodDeclaration methodDeclaration
 
 TypeParameterHelper.addReturnTypeToMethodDeclaration(methodDeclaration, "<T super Collection<?>> List<S>");
 ----------
@@ -2014,6 +2057,26 @@ TypeParameterHelper.addReturnTypeToMethodDeclaration(methodDeclaration, "<T supe
 VariableDeclarationExpression exp1 = VariableDeclarationExpressionHelper.createVariableDeclarationExpression("List<Integer>", "myList",
 	InheritanceKind.FINAL);
 // final List<Integer> myList;
+----------
+
+[[AnnotationTypeMemberDeclaration]]
+=== Generating Annotation Type Member Declaration
+
+----------
+// Some code with the creation of the Annotation annotation
+
+AnnotationTypeMemberDeclaration annotationType = AnnotationTypeMemberDeclarationHelper
+	.createTypeMemberDeclaration(annotation, "propertyValue");
+----------
+
+[[AnnotationMemberValuePair]]
+=== Generating Annotation Member Value Pair
+
+----------
+// Some code with the creation of the Annotation annotation and the Expression propertyExpression
+
+AnnotationMemberValuePair annotationPair = AnnotationMemberValuePairHelper.createAnnotationMemberValuePair(
+				annotation, "propertyValue", propertyExpression);
 ----------
 
 
