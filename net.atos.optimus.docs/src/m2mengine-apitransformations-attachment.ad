@@ -16,7 +16,7 @@ link:./m2mengine-apitransformations.html[Back to the index]
 ** <<AnnotationComplex>>
 
 [[Javadoc]]
-== Add Javadoc To Generated Element
+== Add javadoc to generated element
 
 You can attach a Javadoc to any generated *Element* :
 
@@ -44,7 +44,7 @@ public int[] aMethod(int nbElement);
 ----------
 
 [[Comment]]
-== Add Comment To Generated Element
+== Add comment to generated element
 
 You can attach a comment to any generated *Element* :
 
@@ -70,14 +70,14 @@ public int[] aMethod(int nbElement) {
 ----------
 
 [[Annotation]]
-== Add Annotation
+== Add annotation
 
-We can attach annotation on any *AbstractDeclaration* or *ArrayInitializerInstruction* or *Parameter*
+You can attach annotation on any *AbstractDeclaration* or *ArrayInitializerInstruction* or *Parameter*
 
 [[AnnotationNoParam]]
-=== Add Annotation Without Parameter
+=== Add annotation without parameter
 
-An example with a method :
+An example with a *Method* :
 
 ----------
 Method createdMethod = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false,
@@ -107,10 +107,10 @@ JavaAnnotation.createOrphanAnnotation(createdMethod, "my.javapackage.orphan.anno
 ----------
 
 [[AnnotationParam]]
-=== Add Annotation With Parameter
+=== Add annotation with parameter
 
-We need to create the annotation and then add these parameters. 
-The creation process attach automatically the annotation to the *Element* on which we execute the *createAnnotation()* method.
+We need to create the *JavaAnnotation* and then add these parameters. 
+The creation process attach automatically the annotation to the *Element* on which you execute the *createAnnotation(String,String,String)* method.
 
 Annotation with simple parameter types :
 
@@ -133,7 +133,7 @@ public interface MyInterface {
 }
 ----------
 
-Annotation with Object parameter type, with escape :
+Annotation with Object parameter type and escape :
 
 ----------
 MethodHelper
@@ -177,7 +177,7 @@ public interface MyInterface {
 }
 ----------
 
-We can add array parameter to an annotation :
+We can add array parameter to a *JavaAnnotation* :
 
 ----------
 MethodHelper
@@ -202,9 +202,9 @@ public interface MyInterface {
 ----------
 
 [[AnnotationComplex]]
-=== Complex Annotation Adding Process
+=== Complex annotation adding process
 
-Assume that we want to add to a method, an annotation with other annotations as array parameter
+Assume that we want to add to a *Method*, a *JavaAnnotation* with other *JavaAnnotation* as array parameters :
 
 ----------
 JavaAnnotation annotation = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false,
@@ -230,7 +230,7 @@ public int[] aMethod();
 }
 ----------
 
-Assume that we want to add a parameter with annotation to a method
+Assume that we want to add *Parameter* with *JavaAnnotation* to a *Method* :
 
 ----------
 Method createdMethod = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false,

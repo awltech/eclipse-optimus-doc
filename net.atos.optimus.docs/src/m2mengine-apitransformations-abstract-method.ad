@@ -16,9 +16,9 @@ link:./m2mengine-apitransformations.html[Back to the index]
 ** <<Parameter>>
 
 [[Field]]
-== Generating Field
+== Generating field
 
-We assume that we created classes and enumerations above.
+We assume that we created classes and enumerations (see the link:./m2mengine-apitransformations-abstract-class.html[Generating package, class, interface, enumeration and import] part).
 
 ----------
 Field createdField = FieldHelper.createField(createdClass, VisibilityKind.PRIVATE, false // static_state
@@ -56,12 +56,12 @@ Generating code :
 // Some enum code
 ----------
 
-You can directly access to the name and the type of a *Field*.
+You can directly access to the name and the type name of a *Field* with *getName()* and *getTypeName()* methods respectively.
 
 [[Constructor]]
-== Generating Constructor
+== Generating constructor
 
-We assume that we created classes, enumerations and fields above.
+We assume that we created classes, enumerations (see the link:./m2mengine-apitransformations-abstract-class.html[Generating package, class, interface, enumeration and import] part) and fields above.
 
 ----------
 Constructor createdConstructor = ConstructorHelper.createConstructor(createdClass, VisibilityKind.PUBLIC,
@@ -99,7 +99,7 @@ public myEnum(MyFieldType myFieldType, int myInt) throws Exception1, Exception2 
 }
 ----------
 
-We have additional ways to add parameters
+We have additional ways to add parameters :
 
 ----------
 Constructor createdAnotherConstructor = ConstructorHelper.builder(createdClass)
@@ -131,15 +131,15 @@ public MyClass(MyFieldType param1, int param2){
 public MyClass(int myInt, List<Integer> list);
 ----------
 
-In the case one and three, you need to add some code in the constructor body with the *addInstructions()* method during or after the creation (see the link:./m2mengine-apitransformations-instruction.html[Instruction] part).
+You can add some code in the constructor body with the *addInstructions(IComplexInstruction...)* method during or after its creation (see the link:./m2mengine-apitransformations-instruction.html[Instruction] part).
 
-Furthermore, we can add parameters and exceptions after the constructor creation by the *addParameter(s)()* and *addExceptions()* methods respectively.
-You also can remove all parameters with the *removeParameters()* method.
+Furthermore, we can add parameters and exceptions after the constructor creation by the *addParameter(String,String) or addParameters(String...)* and *addExceptions(String...)* methods.
+You can also remove all parameters with the *removeParameters()* method.
 
 [[Method]]
-== Generating Method
+== Generating method
 
-We assume that we created classes, interfaces and enumerations above. We can add method to a class, an interface or an enumeration.
+We assume that we created classes, interfaces and enumerations (see the link:./m2mengine-apitransformations-abstract-class.html[Generating package, class, interface, enumeration and import] part). We can add method to a class, an interface or an enumeration.
 
 ----------
 Method method = MethodHelper.createMethod(createdInterface, VisibilityKind.PUBLIC, false // static_state
@@ -160,7 +160,7 @@ Generating code :
 public int[] aMethod() throws Exception1, Exception2;
 ----------
 
-We have additional ways to add parameters
+We have additional ways to add parameters :
 
 ----------
 Method createdAnotherMethod = MethodHelper.builder(createdEnum, "anotherMethod")
@@ -179,9 +179,9 @@ public void anotherMethod(int parameter, List<Integer> parameter2);
 public void anotherMethod2(int myInt, List<Integer> list);
 ----------
 
-In the case one and three, you need to add some code in the method body with the *addInstructions()* method during or after the creation (see the link:./m2mengine-apitransformations-instruction.html[Instruction] part).
+You can add some code in the method body with the *addInstructions(IComplexInstruction...)* method during or after its creation (see the link:./m2mengine-apitransformations-instruction.html[Instruction] part).
 
-Furthermore, we can add parameters and exceptions after the method creation by the *addParameter(s)()* and *addExceptions()* methods respectively.
+Furthermore, we can add parameters and exceptions after the method creation by the *addParameter(String,String) or addParameters(String...)* and *addExceptions(String...)* methods respectively.
 You also can remove all parameters with the *removeParameters()* method.
 
 Another example with default behavior :
@@ -196,7 +196,7 @@ Generating code :
 public void aComplexMethod();
 ----------
 
-Another complex example, generic method and array parameters  :
+Another complex example with generic method and array parameters  :
 
 ----------
 Method genericMethod = MethodHelper.builder(createdClass, "genericMethod")
@@ -211,9 +211,9 @@ public <T extends Collection<?>> List<S> genericMethod(T[] arrayParam, Collectio
 ----------
 
 [[Getter]]
-=== Generating Getter
+=== Generating getter
 
-We assume that we created classes and fields above.
+We assume that we created classes and enumerations (see the link:./m2mengine-apitransformations-abstract-class.html[Generating package, class, interface, enumeration and import] part) and fields above.
 
 ----------
 Method getter = GetterHelper.createGetter(createdClass, VisibilityKind.PUBLIC, false // final_state
@@ -254,9 +254,9 @@ public MyFieldType getMyField() {
 ----------
 
 [[Setter]]
-=== Generating Setter
+=== Generating setter
 
-We assume that we created classes, enumerations and fields above.
+We assume that we created classes, enumerations (see the link:./m2mengine-apitransformations-abstract-class.html[Generating package, class, interface, enumeration and import] part) and fields above.
 
 ----------
 Method setter = SetterHelper.createSetter(createdClass, VisibilityKind.PUBLIC, false // final_state
@@ -297,9 +297,9 @@ public void setMyOtherField(int myInt) {
 ----------
 
 [[Parameter]]
-=== Generating Custom Parameter
+=== Generating custom parameter
 
-A created parameter must be added to an abstract method via the *addParameters()* method in order to appear during the generation process.
+A created parameter must be added to an *AbstractMethod* via the *addParameters(Parameter...)* method in order to appear during the generation process.
 We can't reuse a parameter.
 
 ----------
@@ -325,7 +325,7 @@ Generating code :
 public int[] aMethod(int nbElements);
 ----------
 
-You can set the method of the parameter after creation with the *setMethod()* method.
+You can set the method of the *Parameter* after creation with the *setMethod(Method)* method.
 
 Another example with default behavior :
 
@@ -340,4 +340,4 @@ Generating code :
 public int[] aMethod(List<? super Object> list);
 ----------
 
-You can directly access to the name and the type of a *Parameter*.
+You can directly access to the name and the type name of a *Parameter* with *getName()* and *getTypeName()* methods respectively.

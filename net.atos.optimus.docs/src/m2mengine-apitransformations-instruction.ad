@@ -8,9 +8,9 @@
 ''''
 link:./m2mengine-apitransformations.html[Back to the index]
 
-A created instruction must be added to an abstract method via the *addInstructions()* method in order to appear during the generation process.
-We can't reuse an instruction and only specific instruction can be added to a method.
-Indeed, elementary instructions have no sense alone.
+A created instruction must be added to an *AbstractMethod* via the *addInstructions(IComplexInstruction...)* method in order to appear during the generation process.
+We can't reuse an instruction and only *IComplexInstruction* can be added to a method.
+Indeed, *ElementaryInstruction* have no sense alone.
 
 * <<Constant>>
 * <<Field/Variable>>
@@ -41,7 +41,7 @@ Indeed, elementary instructions have no sense alone.
 ** <<Cast>>
 
 [[Constant]]
-== Generating Constant Instruction
+== Generating constant instruction
 
 ----------
 ElementaryInstructionHelper.createInstruction(false); // false boolean
@@ -52,7 +52,7 @@ ElementaryInstructionHelper.createNullInstruction(); // null
 ----------
 
 [[Field/Variable]]
-== Generating This, Field, Variable Instruction
+== Generating this, field, variable instruction
 
 Generating the this keyword :
 
@@ -73,7 +73,7 @@ ElementaryInstructionHelper.createFieldInstruction("myField"); // this.myField (
 ----------
 
 [[VarDecl]]
-=== Generating Variable Declaration
+=== Generating variable declaration
 
 ----------
 ComplexInstruction inst1 = VariableDeclarationHelper.builder("int", "myVariable").build();
@@ -94,8 +94,10 @@ final List<Object> myList;
 String aString, anotherString, aStringAgain;
 ----------
 
+See the <<Assignment/Declaration>> part if you want to declare and assign a variable at the same time.
+
 [[Array]]
-== Generating Array Instruction
+== Generating array instruction
 
 Access to an index of a field array :
 
@@ -115,7 +117,7 @@ ArrayInstructionHelper.builderWithVariable("myArrayVariable")
 // myArrayVariable[this.fieldIndex][this.fieldIndex2][variableIndex1][variableIndex2]
 ----------
 
-Access to an index giving by a method return in a array returning by another method :
+Access to an index giving by a method return in a array returned by another method :
 
 ----------
 ArrayInstructionHelper
@@ -128,10 +130,10 @@ ArrayInstructionHelper
 You can replace the calling instruction by any other *IElementary* instruction.
 
 [[Operation]]
-== Generating Operation Instruction
+== Generating operation instruction
 
 [[Prefix]]
-=== Generating Prefix Operation
+=== Generating prefix operation
 
 Prefix operation with boolean constant :
 
@@ -183,7 +185,7 @@ Instruction inst8 = PrefixOperationHelper.builder().setOperator(PrefixExpression
 You can replace the calling instruction by any other *IElementary* instruction.
 
 [[Postfix]]
-=== Generating Postfix Operation
+=== Generating postfix operation
 
 Postfix operation with field and array field :
 
@@ -228,7 +230,7 @@ Instruction inst7 = PostfixOperationHelper.builder().setOperator(PostfixExpressi
 You can replace the calling instruction by any other *IElementary* instruction.
 
 [[Infix]]
-=== Generating Infix Operation
+=== Generating infix operation
 
 Infix operation with constant :
 
@@ -300,7 +302,7 @@ ElementaryInstruction inst12 = InfixOperationHelper.builder().setOperator(InfixE
 You can replace calling instructions by any other *IElementary* instructions.
 
 [[Assignment]]
-== Generating Assignment Instruction
+== Generating assignment instruction
 
 Assignment instruction with constant :
 
@@ -400,7 +402,7 @@ this.getAssignableObject() /= this.returnSomething();
 You can replace calling instructions by any other *IElementary* instructions.
 
 [[Assignment/Declaration]]
-=== Generating Variable Declaration with Assignment
+=== Generating variable declaration with assignment
 
 ----------
 Instruction inst13 = AssignmentInstructionHelper.builder().setOperator(AssignmentKind.ASSIGN)
@@ -422,10 +424,10 @@ List<Integer> myFinalList = new LinkedList<Intege>();
 ----------
 
 [[Creation]]
-== Generating Creation Instruction
+== Generating creation instruction
 
 [[ArrayCreation]]
-=== Generating Array Creation Instruction
+=== Generating array creation instruction
 
 Create a new array with an elements list : 
 
@@ -441,7 +443,7 @@ ArrayInitializerInstruction inst2 = ArrayCreationHelper.createArray(
 // {"foo", "bar", "foobar"}
 ----------
 
-You can replace calling instructions by any other *IElementary* instructions.
+You can replace simple String instructions by any other *IElementary* instructions.
 
 Create a new array with type and dimensions :
 
@@ -461,7 +463,7 @@ ElementaryInstruction inst5 = ArrayCreationHelper.builder("List<Object>")
 You can replace calling instruction by any other *IElementary* instructions.
 
 [[ClassCreation]]
-=== Generating Class Instantiation Instruction
+=== Generating class instantiation instruction
 
 ----------
 AbstractMethodInstruction inst1 = CallInstructionHelper.createClassInstanciationInstruction("List<Integer>");
@@ -480,7 +482,7 @@ new Integer("5");
 See more about argument in the section <<Argument>>
 
 [[MethodCall]]
-== Generating Method Call Instruction
+== Generating method call instruction
 
 Method call on the current object, a field or a variable :
 
@@ -548,10 +550,10 @@ Generating code :
 this.firstMethod().secondMethod().thirdMethod();
 ----------
 
-You can replace the original caller by any other *IElementary* instructions.
+You can replace the initial caller by any other *IElementary* instructions.
 
 [[Argument]]
-== Add Argument To Generated Method
+== Add argument to generated method
 
 You can add argument by methods presented below during or after the creation
 
@@ -605,13 +607,9 @@ MyClass.someMethod(this.otherMethod());
 You can replace the argument in complex example by any other *IElementary* instructions.
 
 [[Return]]
-== Generating Return Instruction
+== Generating return instruction
 
-We have two ways to create return instruction
-
-With the dedicated helper : 
-
-Constant Return Instruction :
+Constant return instruction :
 
 ----------
 ComplexInstruction inst1 = ReturnInstructionHelper.createEmptyReturnInstruction();
@@ -643,7 +641,7 @@ return 't';
 return "foo";
 ----------
 
-This, Field, Variable Return Instruction :
+This, field and variable return instruction :
 
 ----------
 ComplexInstruction inst7 = ReturnInstructionHelper.createThisReturnInstruction();
@@ -663,7 +661,7 @@ return myVar;
 return this.myField;
 ----------
 
-Or with any created IElementaryInstruction instruction
+Or with any created *IElementaryInstruction* instruction :
 
 ----------
 AbstractMethodInstruction inst10 = CallInstructionHelper.createFieldMethodCallInstruction("myField",
@@ -678,10 +676,10 @@ return this.myField.fieldMethod();
 ----------
 
 [[Control]]
-== Generating Control Flow Instruction
+== Generating control flow instruction
 
 [[If]]
-=== Generating If Statement
+=== Generating if statement
 
 ----------
 ComplexInstruction inst1 = IfInstructionHelper
@@ -711,7 +709,7 @@ if (myInt >= 5) {
 ----------
 
 [[Switch]]
-=== Generating Switch Statement
+=== Generating switch statement
 
 Switch on a variable :
 
@@ -791,7 +789,7 @@ switch (this.myField.fieldMethod()) {
 ----------
 
 [[While]]
-=== Generating While Statement
+=== Generating while statement
 
 Generating while statement :
 
@@ -838,7 +836,7 @@ do {
 ----------
 
 [[ForLoop]]
-=== Generating For Loop Statement
+=== Generating for loop statement
 
 ----------
 ComplexInstruction inst1 = ForLoopInstructionHelper.createdForLoopInstruction(
@@ -919,7 +917,7 @@ for (int i = this.aMethod() ; i < this.anOtherMethod() ; i+= this.aMethodAgain()
 You can replace the calling instruction by any other *IElementaryInstruction* instruction.
 
 [[ForIterable]]
-=== Generating For Iterable Statement
+=== Generating for iterable statement
 
 For iterable with existing variable :
 
@@ -974,7 +972,7 @@ for(Object variable : this.methodReturnIterable()){}
 You can replace the calling instruction by any other *IElementary* instruction.
 
 [[Try/Catch]]
-=== Generating Try/Catch Statement
+=== Generating try/catch statement
 
 ----------
 ComplexInstruction inst = TryCatchInstructionHelper
@@ -1009,10 +1007,10 @@ try {
 You can replace the calling instruction by any other *IComplexInstruction* instruction.
 
 [[OtherInst]]
-== Generating Other Instruction
+== Generating other instruction
 
 [[Parenthesis]]
-=== Generating Parenthesized Instruction
+=== Generating parenthesized instruction
 
 On any *IElementaryInstruction*, you can add parenthesis :
 
@@ -1028,7 +1026,7 @@ IElementaryInstruction inst1 = InfixOperationHelper.builder().setOperator(InfixE
 ----------
 
 [[InstanceOf]]
-=== Generating Instanceof Instruction
+=== Generating instanceof instruction
 
 You can convert any *IElementaryInstruction* to an instanceof instruction :
 
@@ -1040,7 +1038,7 @@ IElementaryInstruction inst = CallInstructionHelper.createThisMethodCallInstruct
 ----------
 
 [[Cast]]
-=== Generating Cast Instruction
+=== Generating cast instruction
 
 You can convert any *IElementaryInstruction* to a cast instruction :
 

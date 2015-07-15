@@ -9,19 +9,19 @@
 
 == Purpose
 
-We present in these pages how to write transformation with the fluent API, available since Optimus 1.2, in the plugin *net.atos.optimus.m2m.javaxmi.operation*.
+We present in these pages how to write transformations with the fluent API, available since Optimus 1.2, in the plugin *net.atos.optimus.m2m.javaxmi.operation*.
 This API propose a high level abstraction of the Java Abstract Syntax Tree used by modisco. 
-So, the API enable to manipulate concept of the Java language by encapsulate AST object, accessible by the *getDelegate()* method.
+So, the API enables to manipulate concept of the Java language by encapsulate AST object, accessible by the *getDelegate()* method.
 
-We describe how to generate the different concept of the Java language with sample code and we show the associated code produced. 
+We describe how to generate the different elements of the Java language with sample code and we show the associated code produced. 
 
-There may three ways to write transformation on concepts :
+There may have three ways to write transformations :
 
-	* Use static method in helper for a full customization of the generated concept
+	* Use static method in helper for a full customization of the generated Java element.
 	* Build the concept with helper and take profit of some default behaviors.
-	* Add directly element to the created concept.
+	* Customize directly the created Java element.
 
-We can generate the following concept of the Java language :
+We can generate the following elements of the Java language :
 
 * link:./m2mengine-apitransformations-abstract-class.html[Package, class, interface, enumeration and import]
 * link:./m2mengine-apitransformations-abstract-method.html[Field, constructor and method]
@@ -29,6 +29,6 @@ We can generate the following concept of the Java language :
 * link:./m2mengine-apitransformations-attachment.html[Javadoc, comment and annotation]
 * link:./m2mengine-apitransformations-advanced.html[Advanced user]
 
-Below, the class diagram of the API, mainly, an encapsulation of the AST model :
+Below, the class diagram of the API elements :
 
 image: images/m2mengine-apitransformations/m2m-img01.png[]

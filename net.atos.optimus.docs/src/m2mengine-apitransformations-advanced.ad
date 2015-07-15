@@ -20,9 +20,9 @@ link:./m2mengine-apitransformations.html[Back to the index]
 
 [[Builder]]
 
-== AST Builders
+== AST builders
 
-The API propose builder to manipulate the modisco AST model directly. 
+The API propose many builders to manipulate the modisco Java AST model directly. 
 Below, we give the list of available AST node builder :
 
 * Package, ImportDeclaration, Modifier, LineComment
@@ -38,7 +38,7 @@ Below, we give the list of available AST node builder :
 * PrimitiveType, TypeParameter, UnresolvedType, WildCardType, TypeAccess, ParameterizedType
 
 [[ImportDeclaration]]
-== Generating Import Declaration
+== Generating import declaration
 
 ----------
 ImportDeclarationHelper.createImportDeclaration("my.javapackage.Object", true // static_state
@@ -52,7 +52,7 @@ ImportDeclarationHelper.createImportDeclaration("my.other.javapackage.*", false 
 
 [[TypeAccess]]
 
-== Generating Type Access
+== Generating type access
 
 Used when you want to access to an existed type
 
@@ -65,7 +65,7 @@ TypeAccess t3 = TypeAccessHelper.createExceptionTypeAccess("MyException");
 TypeAccess t4 = TypeAccessHelper.createTypeAccess("MyClassOrMyInterface");
 ----------
 
-This helper handles parameterized type and array type, so you can have an access to (for example) :
+This helper handles parameterized type and array type (for example) :
 
 ----------
 TypeAccess t5 = TypeAccessHelper.createClassTypeAccess("MyType<O extends Object, S extends AnotherType>");
@@ -81,7 +81,7 @@ TypeAccess t8 = TypeAccessHelper.createOrphanAnnotationTypeAccess(createdMethod,
 
 [[FieldAccess]]
 
-== Generating Field Access
+== Generating field access
 
 ----------
 FieldAccess f1 = FieldAccessHelper.createFieldAccess("myField");
@@ -91,7 +91,7 @@ FieldAccess f2 = FieldAccessHelper.createFieldAccess("myField",true // proxy_sta
 );
 ----------
 
-This helper handles field accessible direclty via an other field :
+This helper handles field accessible directly via another field :
 
 ----------
 FieldAccess f3 = FieldAccessHelper.createFieldAccess("myArrayField.length");
@@ -100,7 +100,7 @@ FieldAccess f3 = FieldAccessHelper.createFieldAccess("myArrayField.length");
 
 [[VariableAccess]]
 
-== Generating Variable Access
+== Generating variable access
 
 ----------
 SingleVariableAccess v1 = VariableAccessHelper.createVariableAccess("myVariable");
@@ -110,7 +110,7 @@ SingleVariableAccess v2 = VariableAccessHelper.createVariableAccess("myVariable"
 );
 ----------
 
-This helper handles class variable and field accessible direclty via an other variable :
+This helper handles class variable and field accessible directly via another variable :
 
 ----------
 SingleVariableAccess v3 = VariableAccessHelper.createVariableAccess("MyClass.myClassVariable");
@@ -122,9 +122,9 @@ SingleVariableAccess v4 = VariableAccessHelper.createVariableAccess("myArray.len
 
 [[TypeParameter]]
 
-== Generating Type Parameter
+== Generating type parameter
 
-Used when you created a type (in ClassHelper or InterfaceHelper) :
+Used when you created a type (in *ClassHelper* or *InterfaceHelper*) :
 
 ----------
 String className = "MyClass<T extends Object, S extends AnotherClass>";
@@ -135,7 +135,7 @@ TypeParameterHelper.addTypeParametersToTypeDeclaration(classDecl);
 // Add properly the parameter T and S
 ----------
 
-Or when you declared a parametric method (in MethodHelper) :
+Or when you declared a parametric method (in *MethodHelper*) :
 
 ----------
 // Some code with the creation of the MethodDeclaration methodDeclaration
@@ -145,7 +145,7 @@ TypeParameterHelper.addReturnTypeToMethodDeclaration(methodDeclaration, "<T supe
 
 [[SingleDeclarationExpression]]
 
-== Generating Single Declaration Expression
+== Generating single declaration expression
 
 ----------
 VariableDeclarationExpression exp1 = VariableDeclarationExpressionHelper.createVariableDeclarationExpression("List<Integer>", "myList",
@@ -154,7 +154,7 @@ VariableDeclarationExpression exp1 = VariableDeclarationExpressionHelper.createV
 ----------
 
 [[AnnotationTypeMemberDeclaration]]
-== Generating Annotation Type Member Declaration
+== Generating annotation type member declaration
 
 ----------
 // Some code with the creation of the Annotation annotation
@@ -164,7 +164,7 @@ AnnotationTypeMemberDeclaration annotationType = AnnotationTypeMemberDeclaration
 ----------
 
 [[AnnotationMemberValuePair]]
-== Generating Annotation Member Value Pair
+== Generating annotation member value pair
 
 ----------
 // Some code with the creation of the Annotation annotation and the Expression propertyExpression

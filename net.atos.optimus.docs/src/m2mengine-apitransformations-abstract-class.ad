@@ -17,9 +17,9 @@ link:./m2mengine-apitransformations.html[Back to the index]
 * <<Import>>
 
 [[Package]]
-== Generating Package
+== Generating package
 
-To create a package, we need the java model (mainly the source folder) and his full qualified name. 
+To create a package, we need its full qualified name and the Java model (mainly the source folder). 
 The already existed package chunk aren't recreated by the method below.
 
 ----------
@@ -29,7 +29,7 @@ JavaPackage createdPackage = PackageHelper.createPackage(javaModel, "my.generate
 You can retrieve the full qualified package name with the *getFullQualifiedName()* method.
 
 [[Class]]
-== Generating Class
+== Generating class
 
 We assume that we created the package above
 
@@ -47,8 +47,6 @@ JavaClass createdClass = ClassHelper.builder(createdPackage, "MyClass").setVisib
 	.addInterfaces("MyImplementedInterface1", "MyImplementedInterface2").build();
 ----------
 
-You can add new implemented interface via the *addInterfaces()* method after the creation of the JavaClass.
-
 Generating code :
 
 ----------
@@ -57,6 +55,8 @@ package my.generated.javapackage;
 public class MyClass extends SuperClass implements MyImplementedInterface1, MyImplementedInterface2 {
 }
 ----------
+
+You can add new implemented interface via the *addInterfaces(String...)* method after the creation of the JavaClass.
 
 A more complex example with default behavior :
 
@@ -106,7 +106,7 @@ public class MyClass extends SuperClass implements MyImplementedInterface1, MyIm
 ----------
 
 [[Interface]]
-== Generating Interface
+== Generating interface
 
 We assume that we created the package above
 
@@ -133,7 +133,7 @@ package my.generated.javapackage;
 public interface MyInterface extends MySuperInterface1, MySuperInterface2 {}
 ----------
 
-You can add new extended interface via the *addInterfaces()* method after the creation of the JavaClass.
+You can add new extended interface via the *addInterfaces(String...)* method after the creation of the JavaClass.
 
 A more complex example with default behavior :
 
@@ -152,7 +152,7 @@ public interface MyComplexInterface<T extends Object> extends SuperParametricInt
 ----------
 
 [[Enumeration]]
-== Generating Enumeration
+== Generating enumeration
 
 We assume that we created the package above
 
@@ -182,10 +182,10 @@ public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {
 }
 ----------
 
-You can add new implemented interface via the *addInterfaces()* method after the creation of the JavaEnum.
+You can add new implemented interface via the *addInterfaces(String...)* method after the creation of the JavaEnum.
 
 Warning : you must add at least one constant when you create a enumeration or the generation doesn't work properly.
-With the *addEnumConstant()* methods, you can add list of arguments to an enum constant during or after the creation (see the link:./m2mengine-apitransformations-instruction.html[Instruction] part).
+With the *addEnumConstant(String, IElementaryInstruction...)* methods, you can add list of arguments to an enum constant during or after the creation (see the link:./m2mengine-apitransformations-instruction.html[Instruction] part).
 
 A more complex example with default behavior :
 
@@ -213,7 +213,7 @@ public enum myDefaultEnum {
 ----------
 
 [[Import]]
-== Generating Import
+== Generating import
 
 We assume that we created classes, interfaces and enumerations above. You can add import during the creation process :
 
