@@ -10,10 +10,11 @@ body {
 }
 
 pre {
-  margin: 5px;
+  padding: 5px 5px 5px 5px;
+  margin: 5px 5px 5px 5px; 
   text-align: left;
   font-family: monospace;
-  font-size: 1.5em;
+  font-size: 1.2em;
   color: #333;
   background-color: #DDD;
 }
