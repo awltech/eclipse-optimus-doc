@@ -2,7 +2,7 @@
 
 [cols="a,10a"]
 |===
-|image:./images/optimus-logo.png[height="128"]|[headertitle]#Writing your own transformations#
+|image:./images/optimus-logo.png[height="128"]|[headertitle]#API for writing Java transformations#
 |===
 
 ''''
