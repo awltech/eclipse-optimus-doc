@@ -267,3 +267,5 @@ import static java.util.Collections.*;
 
 public enum myEnum implements MyImplementedInterface1, MyImplementedInterface2 {}
 ----------
+
+''''

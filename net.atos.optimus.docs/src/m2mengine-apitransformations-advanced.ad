@@ -172,3 +172,5 @@ AnnotationTypeMemberDeclaration annotationType = AnnotationTypeMemberDeclaration
 AnnotationMemberValuePair annotationPair = AnnotationMemberValuePairHelper.createAnnotationMemberValuePair(
 				annotation, "propertyValue", propertyExpression);
 ----------
+
+''''

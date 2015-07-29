@@ -1048,3 +1048,5 @@ IElementaryInstruction inst = CallInstructionHelper.createThisMethodCallInstruct
 
 // (MyType) this.aMethod()
 ----------
+
+''''

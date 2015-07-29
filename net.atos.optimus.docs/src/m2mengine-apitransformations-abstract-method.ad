@@ -341,3 +341,5 @@ public int[] aMethod(List<? super Object> list);
 ----------
 
 You can directly access to the name and the type name of a *Parameter* with *getName()* and *getTypeName()* methods respectively.
+
+''''
