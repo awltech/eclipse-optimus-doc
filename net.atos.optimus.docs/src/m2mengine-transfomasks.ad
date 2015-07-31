@@ -31,7 +31,7 @@ Moreover, some Optimus tools provide a pop-up asking for the transformation mask
 
 == Creating transformation masks
 
-There are essentially two ways to create a transformation mask
+There are essentially two ways to create a transformation mask. You should avoid to create transformation masks with the same name, otherwise unexpected behavior could occur.
 
 === Though an extension point
 
