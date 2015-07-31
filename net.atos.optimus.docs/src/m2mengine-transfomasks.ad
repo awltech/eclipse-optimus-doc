@@ -64,7 +64,7 @@ Furthermore, we can't edit or delete a contributed mask.
 
 === Additional feature
 
-It is possible to import a mask through an XML file respecting the schema *here the schema URL*. The imported mask is editable.
+It is possible to import a mask through an XML file respecting the link:http://eclipse.worldline.com/resources/optimus/transformationMasks.xsd[mask schema]. The imported mask is editable.
 
 Regarding the same schema, we can export all the mask available.
 
