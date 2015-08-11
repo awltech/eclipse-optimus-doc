@@ -42,16 +42,35 @@ Three kinds of contributed transformation mask are available :
 
 image:./images/m2mengine-transfomasks/m2m-transfo-mask.png[]
 
-* The *inclusive mask*. By default, all transformations are disabled. Each transformation or transformation set, added to this mask, are enabled.
+* The *inclusive mask*
+	** By default, all transformations are disabled. 
+	** Each transformation or transformation set, added to this mask, are enabled.
 
-* The *exclusive mask*. By default, all transformations are enabled. Each transformation or transformation set, added to this mask, are disabled.
+* The *exclusive mask*. 
+	** By default, all transformations are enabled. 
+	** Each transformation or transformation set, added to this mask, are disabled.
+
+The example below shows some inclusive and exclusive masks contributed by the extension point mechanism :
+
+image:./images/m2mengine-transfomasks/m2m-extension-point.png[]
 
 === With the preference page
 
-We can create a transformation mask using the associated button in the preference page. 
-This new mask always extended an existing one only for initialization purpose.
+We can create a new transformation mask using the associated button in the preference page. 
+A new mask is based on at least one other previous contributed mask. If you select only one mask, the new mask is simply a copy of the choose mask, either for the include or exclude mode.
+Otherwise, the new mask is the result of the merge of selected masks, according to the following rules :
 
-With created masks, we can change the mask description, enable/disable transformations within it or delete it.
+* The merge follows the order of the selection from top to bottom, it isn't a reflexive operation.
+
+* An inclusive mask enables all its enabled transformations on the mask under construction.
+
+* An exclusive mask disables all its disabled transformations on the mask under construction.
+
+The example below shows the creation of a mask excluding test and pipeline by merging two contributed mask :
+
+image:./images/m2mengine-transfomasks/m2m-mask-creation.png[]
+
+After created a new mask, we can change its description and enable/disable transformations within it or delete it.
 Due to the requirements between the different transformations, we have the following behavior :
 
 * Selecting a transformation selects automatically all transformations required by this transformation.
