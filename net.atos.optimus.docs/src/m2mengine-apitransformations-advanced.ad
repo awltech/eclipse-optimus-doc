@@ -56,13 +56,62 @@ ImportDeclarationHelper.createImportDeclaration("my.other.javapackage.*", false 
 
 Used when you want to access to an existed type
 
-Classic type access :
+Reference a class :
 
 ----------
-TypeAccess t1 = TypeAccessHelper.createClassTypeAccess("MyClass");
+TypeAccess t1 = TypeAccessHelper.createClassTypeAccess("MyClass"); // Reference a class
+
+//Used, for example, in the following context :
+
+// MyClass.myField
+// MyClass.myVar
+// MyChildClass extends MyClass
+// new MyClass()
+// MyClass.staticMethod
+----------
+
+Reference an interface :
+
+----------
 TypeAccess t2 = TypeAccessHelper.createInterfaceTypeAccess("MyInterface");
+
+// Used, for example, in the following context :
+
+// AClass extends MyInterface
+// AnInterface extends MyInterface
+// AnEnum extends MyInterface
+----------
+
+Reference an exception :
+
+----------
 TypeAccess t3 = TypeAccessHelper.createExceptionTypeAccess("MyException");
+
+// Used, for example, in the following context :
+
+// myConstructor() throws MyException
+// myMethod() throws MyException
+// try {...} catch(MyException) {...}
+----------
+
+Reference a class or an interface :
+
+----------
+
 TypeAccess t4 = TypeAccessHelper.createTypeAccess("MyClassOrMyInterface");
+
+// Used, for example, in the following context :
+
+// MyClassOrMyInterface myField
+// MyClassOrMyInterface myParameter
+// MyClassOrMyInterface myVar
+// MyClassOrMyInterface[] myArray
+
+// MyClassOrMyInterface myMethod()
+
+// (MyClassOrMyInterface) myObject
+// myObject instanceof MyClassOrMyInterface
+// for(MyClassOrMyInterface myObject : iterableObject)
 ----------
 
 This helper handles parameterized type and array type (for example) :
@@ -77,6 +126,17 @@ Annotation type access :
 ----------
 TypeAccess t7 = TypeAccessHelper.createAnnotationTypeAccess(createdMethod, "my.javapackage.annotation", "anAnnotation");
 TypeAccess t8 = TypeAccessHelper.createOrphanAnnotationTypeAccess(createdMethod, "my.javapackage.orphan.annotation.orphanAnnotation");
+
+// Used, for example, in the following context :
+
+@my.javapackage.annotation.aMethodAnnotation
+myReturnType myMethod()
+
+@my.javapackage.annotation.anArrayAnnotation
+myArrayType[] myArray
+
+@my.javapackage.annotation.aParameterAnnotation
+myParamType myParameter
 ----------
 
 [[FieldAccess]]
