@@ -201,11 +201,14 @@ Or when you declared a parametric method (in *MethodHelper*) :
 // Some code with the creation of the MethodDeclaration methodDeclaration
 
 TypeParameterHelper.addReturnTypeToMethodDeclaration(methodDeclaration, "<T super Collection<?>> List<S>");
+// <T super Collection<?>> List<S> myMethod()
 ----------
 
 [[SingleDeclarationExpression]]
 
 == Generating single declaration expression
+
+Create a variable declaration with no initialization :
 
 ----------
 VariableDeclarationExpression exp1 = VariableDeclarationExpressionHelper.createVariableDeclarationExpression("List<Integer>", "myList",
@@ -216,21 +219,27 @@ VariableDeclarationExpression exp1 = VariableDeclarationExpressionHelper.createV
 [[AnnotationTypeMemberDeclaration]]
 == Generating annotation type member declaration
 
+Add a property to an annotation :
+
 ----------
 // Some code with the creation of the Annotation annotation
 
 AnnotationTypeMemberDeclaration annotationType = AnnotationTypeMemberDeclarationHelper
-	.createTypeMemberDeclaration(annotation, "propertyValue");
+	.createTypeMemberDeclaration(annotation, "propertyName");
+// @MyAnnotation(propertyName)
 ----------
 
 [[AnnotationMemberValuePair]]
 == Generating annotation member value pair
 
+Add a value to a property of an annotation, automatically create the property or update the property to an array :
+
 ----------
 // Some code with the creation of the Annotation annotation and the Expression propertyExpression
 
 AnnotationMemberValuePair annotationPair = AnnotationMemberValuePairHelper.createAnnotationMemberValuePair(
-				annotation, "propertyValue", propertyExpression);
+				annotation, "propertyName", propertyExpression);
+// @MyAnnotation(propertyName=/*propertyExpression*/)
 ----------
 
 ''''
