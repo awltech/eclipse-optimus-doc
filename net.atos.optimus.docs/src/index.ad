@@ -31,6 +31,8 @@ means that you will be able to natively make it as you want
 
 == How can I get more information about it ?
 
+The javadoc associated to Optimus plugins is available http://eclipse.worldline.com/javadoc/optimus/nightly/[here]
+
 The following links will head you towards the different parts of Optimus and their usage and extension points.
 
 * link:./installationguide.html[Installation guide]

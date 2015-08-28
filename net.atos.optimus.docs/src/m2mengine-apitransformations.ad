@@ -13,7 +13,7 @@ We present in these pages how to write transformations with the fluent API, avai
 This API propose a high level abstraction of the Java Abstract Syntax Tree used by modisco. 
 So, the API enables to manipulate concept of the Java language by encapsulate AST object, accessible by the *getDelegate()* method.
 
-The javadoc of the API is available link:http://eclipse.worldline.com/javadoc/optimus/nightly/m2t-operations/[here]
+The javadoc of the API is available link:http://eclipse.worldline.com/javadoc/optimus/nightly/net.atos.optimus.m2m.javaxmi.operation/index.html[here]
 
 We describe how to generate the different elements of the Java language with sample code and we show the associated code produced. 
 
